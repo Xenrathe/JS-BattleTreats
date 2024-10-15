@@ -1,8 +1,21 @@
 class Dog {
-  constructor(length, name, hits) {
+  constructor(length, name, treats) {
     this.length = length;
     this.name = name;
-    this.hits = hits;
-    this.isSunk = false; // No reason to instantiate a sunk object ever
+    this.treats = treats;
+  }
+
+  feed() {
+    this.treats += 1;
+  }
+
+  isSatiated() {
+    return this.treats >= this.length;
+  }
+
+  resetTreats() {
+    this.treats = 0;
   }
 }
+
+module.exports = Dog;
