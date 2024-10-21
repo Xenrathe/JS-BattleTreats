@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BattleTreats</title>
+  </head>
+  <body>
+    <!-- Banner -->
+    <div class="banner">Battletreats</div>
+
+    <!-- Game Container -->
+    <div class="game-container">
+      <!-- My Dogs Board -->
+      <div class="game-board" id="player-gameboard">
+        <div class="game-board-title">My Dogs</div>
+        <!-- Axis Labels for Vertical Axis -->
+        <div style="display: flex">
+          <div class="axis-labels">
+            <span>A</span>
+            <span>B</span>
+            <span>C</span>
+            <span>D</span>
+            <span>E</span>
+            <span>F</span>
+            <span>G</span>
+            <span>H</span>
+            <span>I</span>
+            <span>J</span>
+          </div>
+
+          <!-- Gameboard Grid -->
+          <div class="grid" id="player-grid"></div>
+        </div>
+        <!-- Horizontal Axis Labels -->
+        <div class="horizontal-labels">
+          <span>1</span> <span>2</span> <span>3</span> <span>4</span>
+          <span>5</span> <span>6</span> <span>7</span> <span>8</span>
+          <span>9</span> <span>10</span>
+        </div>
+      </div>
+
+      <!-- Neighbor's Dogs Board -->
+      <div class="game-board" id="opponent-gameboard">
+        <div class="game-board-title">Neighbor's Dogs</div>
+        <!-- Axis Labels for Vertical Axis -->
+        <div style="display: flex">
+          <div class="axis-labels">
+            <span>A</span>
+            <span>B</span>
+            <span>C</span>
+            <span>D</span>
+            <span>E</span>
+            <span>F</span>
+            <span>G</span>
+            <span>H</span>
+            <span>I</span>
+            <span>J</span>
+          </div>
+
+          <!-- Gameboard Grid -->
+          <div class="grid" id="opponent-grid"></div>
+        </div>
+        <!-- Horizontal Axis Labels -->
+        <div class="horizontal-labels">
+          <span>1</span> <span>2</span> <span>3</span> <span>4</span>
+          <span>5</span> <span>6</span> <span>7</span> <span>8</span>
+          <span>9</span> <span>10</span>
+        </div>
+      </div>
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>
