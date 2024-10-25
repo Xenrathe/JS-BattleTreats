@@ -1,4 +1,4 @@
-const Gameboard = require("../src/gameboard");
+import { Gameboard } from "../src/gameboard";
 
 //addDog TEST BEGIN
 test("addDog places a Dog object VERTICALLY extending from 0,0 to 0, 2", () => {

@@ -1,4 +1,4 @@
-const Dog = require("../src/dog");
+import { Dog } from "../src/dog";
 
 test("creates a smallDog Dog object of length 1, treats 0, name 'Pom'", () => {
   const smallDog = new Dog(1, "Pom", 0);
