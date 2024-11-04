@@ -1,12 +1,10 @@
-const Gameboard = require("./gameboard");
+import { Gameboard } from "./gameboard";
 
-class Player {
-  constructor(name, isHuman) {
+export class Player {
+  constructor(name, isHuman, gridObject) {
     this.name = name;
     this.isHuman = isHuman;
 
-    this.gameboard = new Gameboard();
+    this.gameboard = new Gameboard(gridObject);
   }
 }
-
-module.exports = Player;

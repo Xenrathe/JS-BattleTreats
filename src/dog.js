@@ -1,4 +1,4 @@
-class Dog {
+export class Dog {
   constructor(length, name, treats) {
     this.length = length;
     this.name = name;
@@ -17,5 +17,3 @@ class Dog {
     this.treats = 0;
   }
 }
-
-module.exports = Dog;

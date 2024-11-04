@@ -1,6 +1,7 @@
-const Dog = require("./dog");
+import { Dog } from "./dog";
+import { displayGridItem } from "./domController";
 
-class Gameboard {
+export class Gameboard {
   // board array contains one of three:
   // 0 for empty
   // 1 for missed treat
@@ -8,8 +9,9 @@ class Gameboard {
   #board;
   #dogs;
 
-  constructor() {
+  constructor(domGrid) {
     this.resetBoard();
+    this.domGrid = domGrid;
   }
 
   // adds a pre-existing Dog (e.g. from the #dogs array) starting at firstCoord and ending at secondCoord
@@ -20,6 +22,7 @@ class Gameboard {
       this.getCoord(firstCoord) == null ||
       this.getCoord(secondCoord) == null
     ) {
+      console.log("addDog error: coords invalid");
       return false;
     }
 
@@ -32,10 +35,19 @@ class Gameboard {
       //check for length mismatch
       const length = Math.abs(startYCoord - endYCoord) + 1;
       if (length != dogObject.length) {
+        console.log("addDog error: vertical length mismatch");
         return false;
       }
 
       const step = startYCoord < endYCoord ? 1 : -1; //Could be increase or decrease
+
+      //check for overlapping dogs
+      for (let y = startYCoord; y != endYCoord + step; y += step) {
+        if (Object.keys(this.#board[x][y]).includes("treated")) {
+          console.log("addDog error: Pavlov's exclusion principle");
+          return false;
+        }
+      }
 
       for (let y = startYCoord; y != endYCoord + step; y += step) {
         this.#board[x][y] = { dog: dogObject, treated: false };
@@ -59,6 +71,14 @@ class Gameboard {
       }
 
       const step = startXCoord < endXCoord ? 1 : -1; //Could be increase or decrease
+
+      //check for overlapping dogs
+      for (let x = startXCoord; x != endXCoord + step; x += step) {
+        if (Object.keys(this.#board[x][y]).includes("treated")) {
+          console.log("addDog error: Pavlov's exclusion principle");
+          return false;
+        }
+      }
 
       for (let x = startXCoord; x != endXCoord + step; x += step) {
         this.#board[x][y] = { dog: dogObject, treated: false };
@@ -118,7 +138,31 @@ class Gameboard {
     }
   }
 
-  // attempts to treat a given coords location
+  // used for AI or lazy players to just put their dogs randomly
+  randomlyPlaceDogs() {
+    this.#dogs.forEach((dog) => {
+      let isPlaced = false;
+      let counter = 0;
+      while (!isPlaced && counter < 10) {
+        // randomly choose between horizontal or vertical
+        // VERTICAL
+        counter++;
+        if (Math.round(Math.random()) == 0) {
+          const x = Math.round(Math.random() * 9);
+          const y = Math.round(Math.random() * (10 - dog.length));
+          isPlaced = this.addDog(dog, [x, y], [x, y + dog.length - 1]);
+        }
+        // HORIZONTAL
+        else {
+          const x = Math.round(Math.random() * (10 - dog.length));
+          const y = Math.round(Math.random() * 9);
+          isPlaced = this.addDog(dog, [x, y], [x + dog.length - 1, y]);
+        }
+      }
+    });
+  }
+
+  // attempts to treat a given coords (an array of length 2: [x, y])
   // 0 -> 1
   // 1 -> make no change, return false
   // {dog: dogObject, treated: false} -> {dog: dogObject, treated: true}
@@ -132,12 +176,14 @@ class Gameboard {
       return false;
     } else if (currentValue == 0) {
       this.#board[xCoord][yCoord] = 1;
+      displayGridItem(coords, this);
       return true;
     } else if (currentValue.treated == true) {
       return false;
     } else {
       currentValue.dog.feed();
       this.#board[xCoord][yCoord].treated = true;
+      displayGridItem(coords, this);
       return true;
     }
   }
@@ -158,5 +204,3 @@ class Gameboard {
     ];
   }
 }
-
-module.exports = Gameboard;

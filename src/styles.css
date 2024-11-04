@@ -8,7 +8,6 @@ body {
   align-items: center;
 }
 
-/* Banner at the top */
 .banner {
   background-color: #ffcc00;
   width: 100%;
@@ -19,7 +18,6 @@ body {
   font-weight: bold;
 }
 
-/* Container for both game boards */
 .game-container {
   display: flex;
   justify-content: space-between;
@@ -27,7 +25,6 @@ body {
   margin-top: 30px;
 }
 
-/* Style for each column */
 .game-board {
   display: flex;
   flex-direction: column;
@@ -46,7 +43,6 @@ body {
   margin-bottom: 15px;
 }
 
-/* Grid style */
 .grid {
   display: grid;
   grid-template-columns: repeat(10, 40px);
@@ -64,7 +60,6 @@ body {
   align-items: center;
 }
 
-/* Labels for the grid */
 .grid-labels {
   display: flex;
   justify-content: space-between;
@@ -105,4 +100,12 @@ body {
 
 .hidden {
   visibility: hidden;
+}
+
+.red-text {
+  color: red;
+}
+
+#opponent-grid .grid-cell:hover {
+  cursor: crosshair;
 }

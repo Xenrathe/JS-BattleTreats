@@ -44,7 +44,7 @@ test("addDog refuses to place a Dog object diagonally", () => {
   expect(gameboard.getCoord([4, 5])).toBe(0);
 });
 
-test("addDog efuses to place a Dog object with a starting coordinate below the board", () => {
+test("addDog refuses to place a Dog object with a starting coordinate below the board", () => {
   const gameboard = new Gameboard();
   const mockDog = { length: 3, name: "Dashund", treats: 0 };
   expect(gameboard.addDog(mockDog, [0, -1], [0, 1])).toBe(false);
@@ -105,6 +105,17 @@ test("addDog refuses to place a Dog object whose starting and ending coords do n
   const mockDog = { length: 3, name: "Dashund", treats: 0 };
   expect(gameboard.addDog(mockDog, [5, 5], [8, 5])).toBe(false);
   expect(gameboard.getCoord([5, 5])).toBe(0);
+});
+
+test("addDog refuses to place a Dog object at coords that overlap a different Dog object", () => {
+  const gameboard = new Gameboard();
+  const mockDogOne = { length: 5, name: "BigDog", treats: 0 };
+  const expectedDog = { dog: mockDogOne, treated: false };
+  const mockDogTwo = { length: 2, name: "SmallDog", treats: 0 };
+  gameboard.addDog(mockDogOne, [1, 2], [1, 6]);
+  expect(gameboard.getCoord([1, 3])).toEqual(expectedDog);
+  expect(gameboard.addDog(mockDogTwo, [1, 3], [1, 4])).toBe(false);
+  expect(gameboard.getCoord([1, 3])).toEqual(expectedDog);
 });
 //addDog TEST END
 
