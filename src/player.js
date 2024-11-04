@@ -1,10 +1,10 @@
 import { Gameboard } from "./gameboard";
 
 export class Player {
-  constructor(name, isHuman, gridObject) {
+  constructor(name, isHuman, boardDom) {
     this.name = name;
     this.isHuman = isHuman;
 
-    this.gameboard = new Gameboard(gridObject);
+    this.gameboard = new Gameboard(boardDom);
   }
 }

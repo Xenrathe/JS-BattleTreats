@@ -9,9 +9,10 @@ export class Gameboard {
   #board;
   #dogs;
 
-  constructor(domGrid) {
+  constructor(domBoard) {
     this.resetBoard();
-    this.domGrid = domGrid;
+    this.domBoard = domBoard;
+    this.domGrid = domBoard.querySelector(".board-grid");
   }
 
   // adds a pre-existing Dog (e.g. from the #dogs array) starting at firstCoord and ending at secondCoord

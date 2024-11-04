@@ -1,6 +1,34 @@
-export function initializeGrid(boardObject) {
-  const gridObject = boardObject.domGrid;
-  gridObject.innerHTML = "";
+import { Player } from "./player";
+
+const opponentBoard = document.querySelector("#opponent-gameboard");
+const userBoard = document.querySelector("#player-gameboard");
+let userPlayer = null;
+let opponentPlayer = null;
+
+export function newGame(firstPlayerName, secondPlayerName) {
+  userPlayer = new Player(firstPlayerName, true, userBoard);
+  userPlayer.gameboard.resetBoard();
+  userPlayer.gameboard.randomlyPlaceDogs();
+  initializeBoard(userPlayer);
+  displayGrid(userPlayer.gameboard);
+
+  opponentPlayer = new Player(secondPlayerName, false, opponentBoard);
+  opponentPlayer.gameboard.resetBoard();
+  opponentPlayer.gameboard.randomlyPlaceDogs();
+  initializeBoard(opponentPlayer);
+}
+
+export function initializeBoard(playerObject) {
+  const boardObject = playerObject.gameboard;
+
+  //setup the board titles
+  boardObject.domBoard.querySelector(
+    ".game-board-title"
+  ).textContent = `${playerObject.name}'s Dogs`;
+
+  //setup the grid
+  const domGrid = boardObject.domGrid;
+  domGrid.innerHTML = "";
 
   const rows = "ABCDEFGHIJ".split("");
   const cols = Array.from({ length: 10 }, (_, i) => i + 1);
@@ -14,12 +42,13 @@ export function initializeGrid(boardObject) {
       gridCell.addEventListener("click", () =>
         boardObject.receiveTreat([col - 1, letterToNumber(row)])
       );
-      gridObject.appendChild(gridCell);
+      domGrid.appendChild(gridCell);
     });
   });
 }
 
-export function displayBoard(boardObject) {
+export function displayGrid(boardObject) {
+  //setup grid
   for (let x = 0; x < 10; x++) {
     for (let y = 0; y < 10; y++) {
       displayGridItem([x, y], boardObject);
