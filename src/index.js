@@ -1,4 +1,4 @@
-import { newGame } from "./domController";
+import { initializeDom } from "./domController";
 import "./styles.css";
 
-newGame("Erik", "Neighbor");
+initializeDom();

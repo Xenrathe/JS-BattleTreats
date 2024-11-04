@@ -5,7 +5,22 @@ const userBoard = document.querySelector("#player-gameboard");
 let userPlayer = null;
 let opponentPlayer = null;
 
-export function newGame(firstPlayerName, secondPlayerName) {
+export function initializeDom() {
+  const newGameBtn = document.querySelector("#new-game-btn");
+  newGameBtn.addEventListener("click", () => startNewGame());
+}
+
+function startNewGame() {
+  let firstPlayerName = null;
+
+  while (firstPlayerName == null) {
+    firstPlayerName = prompt("Please enter your name", "Legend");
+  }
+
+  initializeNewGame(firstPlayerName, "Neighbor");
+}
+
+function initializeNewGame(firstPlayerName, secondPlayerName) {
   userPlayer = new Player(firstPlayerName, true, userBoard);
   userPlayer.gameboard.resetBoard();
   userPlayer.gameboard.randomlyPlaceDogs();
