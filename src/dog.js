@@ -3,6 +3,11 @@ export class Dog {
     this.length = length;
     this.name = name;
     this.treats = treats;
+    this.coords = [];
+  }
+
+  addCoord(coord) {
+    this.coords.push(coord);
   }
 
   feed() {

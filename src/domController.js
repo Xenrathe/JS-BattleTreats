@@ -22,19 +22,22 @@ function startNewGame() {
 
 function initializeNewGame(firstPlayerName, secondPlayerName) {
   userPlayer = new Player(firstPlayerName, true, userBoard);
+  opponentPlayer = new Player(secondPlayerName, false, opponentBoard);
+
   userPlayer.gameboard.resetBoard();
   userPlayer.gameboard.randomlyPlaceDogs();
   initializeBoard(userPlayer);
   displayGrid(userPlayer.gameboard);
 
-  opponentPlayer = new Player(secondPlayerName, false, opponentBoard);
   opponentPlayer.gameboard.resetBoard();
   opponentPlayer.gameboard.randomlyPlaceDogs();
   initializeBoard(opponentPlayer);
 }
 
-export function initializeBoard(playerObject) {
+function initializeBoard(playerObject) {
   const boardObject = playerObject.gameboard;
+  const guessingPlayer =
+    playerObject == userPlayer ? opponentPlayer : userPlayer;
 
   //setup the board titles
   boardObject.domBoard.querySelector(
@@ -55,14 +58,14 @@ export function initializeBoard(playerObject) {
       gridCell.id = `${row}${col}`;
       gridCell.classList.add("grid-cell");
       gridCell.addEventListener("click", () =>
-        boardObject.receiveTreat([col - 1, letterToNumber(row)])
+        guessingPlayer.giveTreat([col - 1, letterToNumber(row)], playerObject)
       );
       domGrid.appendChild(gridCell);
     });
   });
 }
 
-export function displayGrid(boardObject) {
+function displayGrid(boardObject) {
   //setup grid
   for (let x = 0; x < 10; x++) {
     for (let y = 0; y < 10; y++) {
@@ -90,7 +93,12 @@ export function displayGridItem(coord, boardObject) {
   } else {
     coordDiv.innerHTML = coordStatus.dog.name[0];
     if (coordStatus.treated) {
-      coordDiv.classList.add("red-text");
+      if (coordStatus.dog.isSatiated()) {
+        coordDiv.classList.remove("red-text");
+        coordDiv.classList.add("orange-text");
+      } else {
+        coordDiv.classList.add("red-text");
+      }
     } else {
       coordDiv.classList.remove("red-text");
     }

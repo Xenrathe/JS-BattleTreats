@@ -106,6 +106,10 @@ body {
   color: red;
 }
 
+.orange-text {
+  color: orange;
+}
+
 #opponent-grid .grid-cell:hover {
   cursor: crosshair;
 }

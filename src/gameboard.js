@@ -52,6 +52,7 @@ export class Gameboard {
 
       for (let y = startYCoord; y != endYCoord + step; y += step) {
         this.#board[x][y] = { dog: dogObject, treated: false };
+        dogObject.addCoord([x, y]);
       }
 
       return true;
@@ -76,13 +77,13 @@ export class Gameboard {
       //check for overlapping dogs
       for (let x = startXCoord; x != endXCoord + step; x += step) {
         if (Object.keys(this.#board[x][y]).includes("treated")) {
-          console.log("addDog error: Pavlov's exclusion principle");
           return false;
         }
       }
 
       for (let x = startXCoord; x != endXCoord + step; x += step) {
         this.#board[x][y] = { dog: dogObject, treated: false };
+        dogObject.addCoord([x, y]);
       }
 
       return true;
@@ -184,7 +185,16 @@ export class Gameboard {
     } else {
       currentValue.dog.feed();
       this.#board[xCoord][yCoord].treated = true;
-      displayGridItem(coords, this);
+
+      //Needs to go back and update all the dogs coords
+      if (currentValue.dog.isSatiated()) {
+        currentValue.dog.coords.forEach((coord) => {
+          displayGridItem(coord, this);
+        });
+        alert(`${currentValue.dog.name} has been fully fed!`);
+      } else {
+        displayGridItem(coords, this); // Only needs to update THIS coord
+      }
       return true;
     }
   }
