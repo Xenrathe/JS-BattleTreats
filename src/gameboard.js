@@ -1,5 +1,5 @@
 import { Dog } from "./dog";
-import { displayGridItem } from "./domController";
+import { displayGridItem, displayDog } from "./domController";
 
 export class Gameboard {
   // board array contains one of three:
@@ -123,6 +123,12 @@ export class Gameboard {
     return victoryStatus;
   }
 
+  displayAllDogs() {
+    this.#dogs.forEach((dog) => {
+      displayDog(dog, this);
+    });
+  }
+
   // returns the status of a given [x, y] cooords
   // 0: empty
   // 1: empty but already targeted
@@ -207,11 +213,11 @@ export class Gameboard {
       .map(() => Array(10).fill(0));
 
     this.#dogs = [
-      new Dog(2, "Chihuahua", 0),
-      new Dog(3, "Pug", 0),
-      new Dog(3, "Beagle", 0),
-      new Dog(4, "Dashund", 0),
-      new Dog(5, "Labrador", 0),
+      new Dog(2, "Pug", 0),
+      new Dog(3, "Dashund", 0),
+      new Dog(3, "Corgi", 0),
+      new Dog(4, "Bulldog", 0),
+      new Dog(5, "Komondor", 0),
     ];
   }
 }

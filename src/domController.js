@@ -1,9 +1,20 @@
 import { Player } from "./player";
+import treatMiss from "./images/red-treat.png";
+
+const images = require.context("./images/dogs", false, /\.(png|jpe?g|svg)$/);
+const imagePaths = {};
+
+images.keys().forEach((key) => {
+  // Get the image name without extension and directory (e.g., pug)
+  const imageName = key.replace("./", "").replace(/\.(png|jpe?g|svg)$/, "");
+  imagePaths[imageName] = images(key);
+});
 
 const opponentBoard = document.querySelector("#opponent-gameboard");
 const userBoard = document.querySelector("#player-gameboard");
 let userPlayer = null;
 let opponentPlayer = null;
+let dogImages = [];
 
 export function initializeDom() {
   const newGameBtn = document.querySelector("#new-game-btn");
@@ -23,6 +34,12 @@ function startNewGame() {
 function initializeNewGame(firstPlayerName, secondPlayerName) {
   userPlayer = new Player(firstPlayerName, true, userBoard);
   opponentPlayer = new Player(secondPlayerName, false, opponentBoard);
+
+  // Clear any dog images FIRST
+  dogImages.forEach((dogImg) => {
+    dogImg.remove();
+  });
+  dogImages = [];
 
   userPlayer.gameboard.resetBoard();
   userPlayer.gameboard.randomlyPlaceDogs();
@@ -65,6 +82,7 @@ function initializeBoard(playerObject) {
   });
 }
 
+// only used if you want to reveal the WHOLE board
 function displayGrid(boardObject) {
   //setup grid
   for (let x = 0; x < 10; x++) {
@@ -72,6 +90,9 @@ function displayGrid(boardObject) {
       displayGridItem([x, y], boardObject);
     }
   }
+
+  //show dogs
+  boardObject.displayAllDogs();
 }
 
 // update the display of a single grid item
@@ -85,24 +106,76 @@ export function displayGridItem(coord, boardObject) {
   );
   const coordStatus = boardObject.getCoord(coord);
   if (coordStatus == 1) {
-    coordDiv.classList.add("red-text");
-    coordDiv.innerHTML = "X";
+    const miss_image = document.createElement("img");
+    miss_image.src = treatMiss;
+    coordDiv.appendChild(miss_image);
   } else if (coordStatus == 0) {
     coordDiv.innerHTML = "";
     coordDiv.classList.remove("red-text");
   } else {
-    coordDiv.innerHTML = coordStatus.dog.name[0];
+    let textElement = coordDiv.querySelector(".status-text");
+    if (!textElement) {
+      textElement = document.createElement("span");
+      textElement.classList.add("status-text");
+      coordDiv.appendChild(textElement);
+    }
+    textElement.textContent = coordStatus.dog.name[0];
+
     if (coordStatus.treated) {
       if (coordStatus.dog.isSatiated()) {
-        coordDiv.classList.remove("red-text");
-        coordDiv.classList.add("orange-text");
+        textElement.classList.remove("red-text");
+        textElement.classList.add("orange-text");
       } else {
-        coordDiv.classList.add("red-text");
+        textElement.classList.add("red-text");
       }
     } else {
-      coordDiv.classList.remove("red-text");
+      textElement.classList.remove("red-text");
     }
   }
+}
+
+export function displayDog(dog, boardObject) {
+  const { coords, name } = dog;
+  const boardDom = boardObject.domBoard;
+
+  const isVertical = coords[0][0] == coords[1][0];
+
+  const dogImage = document.createElement("img");
+  dogImage.src = imagePaths[name.toLowerCase()];
+  dogImage.alt = name;
+  dogImage.classList.add("dog-image");
+
+  const firstCell = boardDom.querySelector(
+    `#${numberToLetter(coords[0][1]) + (coords[0][0] + 1)}`
+  );
+
+  // dynamically adjust size and position
+  /*
+  const cellRect = firstCell.getBoundingClientRect();
+  dogImage.style.top = `${cellRect.top}px`;
+  dogImage.style.left = `${cellRect.left}px`;
+  dogImage.style.width = `${cellRect.width * coords.length}px`;
+  dogImage.style.height = `${cellRect.height}px`;
+
+  if (isVertical) {
+    dogImage.style.transform = "rotate(90deg)";
+    dogImage.style.transformOrigin = "top left"; // Adjust rotation anchor
+    dogImage.style.top = `${cellRect.top}px`;
+    dogImage.style.left = `${cellRect.left + cellRect.width}px`; // Offset left to align with grid start
+  }
+
+  document.body.appendChild(dogImage);*/
+
+  dogImage.style.width = `${coords.length * 100}%`; // Span the width of the cell or multiple cells
+  dogImage.style.height = "100%";
+
+  if (isVertical) {
+    dogImage.style.transform = "rotate(90deg) translate(0, -100%)";
+    dogImage.style.transformOrigin = "top left"; // Keep the top-left corner as the anchor
+  }
+
+  firstCell.appendChild(dogImage);
+  dogImages.push(dogImage);
 }
 
 // helper function to convert coord #s 0, 1, etc to corresponding vertical axis coords 'A', 'B', etc

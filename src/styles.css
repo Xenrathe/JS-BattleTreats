@@ -1,3 +1,7 @@
+:root {
+  --cell-size: 40px;
+}
+
 body {
   font-family: "Arial", sans-serif;
   background-color: #f0f8ff;
@@ -29,6 +33,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
 }
 
 .game-board-title {
@@ -50,14 +55,22 @@ body {
   gap: 5px;
 }
 
-.board-grid div {
-  width: 40px;
-  height: 40px;
+.board-grid .grid-cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
   background-color: #dcdcdc;
   border: 1px solid #aaa;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+
+  font-size: 20px;
+}
+
+.board-grid .grid-cell img {
+  width: calc(var(--cell-size) * 0.7);
+  height: calc(var(--cell-size) * 0.7);
 }
 
 .grid-labels {
@@ -74,13 +87,13 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  height: 445px;
+  height: calc(var(--cell-size) * 10 + 45px);
   width: 13px;
   margin-right: 2px;
 }
 
 .axis-labels span {
-  height: 44.5px;
+  height: calc(var(--cell-size) + 4.5px);
   display: flex;
   align-items: center;
 }
@@ -88,13 +101,13 @@ body {
 .horizontal-labels {
   display: flex;
   justify-content: space-around;
-  width: 445px;
+  width: calc(var(--cell-size) * 10 + 45px);
   padding-left: 13px;
   margin-top: 2px;
 }
 
 .horizontal-labels span {
-  width: 44.5px;
+  width: calc(var(--cell-size) + 4.5px);
   text-align: center;
 }
 
@@ -102,14 +115,30 @@ body {
   visibility: hidden;
 }
 
+.status-text {
+  z-index: 11;
+}
+
 .red-text {
   color: red;
+  font-weight: bold;
 }
 
 .orange-text {
   color: orange;
+  font-weight: bold;
 }
 
 #opponent-grid .grid-cell:hover {
   cursor: crosshair;
+}
+
+.dog-image {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+
+  opacity: 0.5;
+  pointer-events: none; /* To make sure it doesn’t interfere with grid clicks */
+  z-index: 10;
 }

@@ -11,7 +11,7 @@ export class Player {
   giveTreat(coords, opposingPlayer) {
     const boardToTreat = opposingPlayer.gameboard;
 
-    if (boardToTreat.checkVictory()) {
+    if (boardToTreat.checkVictory() || this.gameboard.checkVictory()) {
       return;
     }
 
