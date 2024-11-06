@@ -105,14 +105,20 @@ export function displayGridItem(coord, boardObject) {
     `#${numberToLetter(coord[1])}${coord[0] + 1}`
   );
   const coordStatus = boardObject.getCoord(coord);
+
+  // TREAT ON EMPTY CELL
   if (coordStatus == 1) {
     const miss_image = document.createElement("img");
     miss_image.src = treatMiss;
     coordDiv.appendChild(miss_image);
-  } else if (coordStatus == 0) {
+  }
+  // NO TREAT / EMPTY CELL
+  else if (coordStatus == 0) {
     coordDiv.innerHTML = "";
     coordDiv.classList.remove("red-text");
-  } else {
+  }
+  // DOG ON CELL
+  else {
     let textElement = coordDiv.querySelector(".status-text");
     if (!textElement) {
       textElement = document.createElement("span");
@@ -121,14 +127,26 @@ export function displayGridItem(coord, boardObject) {
     }
     textElement.textContent = coordStatus.dog.name[0];
 
+    // DOG HAS BEEN TREATED (only way it's visible on opponent board)
     if (coordStatus.treated) {
       if (coordStatus.dog.isSatiated()) {
         textElement.classList.remove("red-text");
         textElement.classList.add("orange-text");
+
+        // remove any existing dog image
+        let dogImage = coordDiv.querySelector(".dog-image");
+        if (dogImage) {
+          dogImage.remove();
+        }
+
+        // add dog image
+        displayDog(coordStatus.dog, boardObject);
       } else {
         textElement.classList.add("red-text");
       }
-    } else {
+    }
+    // DOG NOT TREATED
+    else {
       textElement.classList.remove("red-text");
     }
   }
