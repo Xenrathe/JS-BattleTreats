@@ -1,29 +1,31 @@
 import { Gameboard } from "./gameboard";
 
 export class Player {
-  constructor(name, isHuman, boardDom) {
+  constructor(name, isHuman, boardDom, gridDom) {
     this.name = name;
     this.isHuman = isHuman;
 
-    this.gameboard = new Gameboard(boardDom);
+    this.gameboard = new Gameboard(boardDom, gridDom);
   }
 
-  giveTreat(coords, opposingPlayer) {
+  giveTreat(coords, opposingPlayer, dotMatrixObject) {
     const boardToTreat = opposingPlayer.gameboard;
 
+    console.log("giveTreat dotMatrix: " + dotMatrixObject);
+    // No more moves after treating
     if (boardToTreat.checkVictory() || this.gameboard.checkVictory()) {
       return;
     }
 
     // Immediately have opposingPlayer - IF AI - make their turn
     // Also check for victory after moves were made
-    if (boardToTreat.receiveTreat(coords) && this.isHuman) {
+    if (boardToTreat.receiveTreat(coords, dotMatrixObject) && this.isHuman) {
       if (boardToTreat.checkVictory()) {
-        alert(`Woof woof ${this.name}! You won!`);
+        dotMatrixObject.displayString("Woof! You won!");
       } else {
         opposingPlayer.AI_giveTreat("random", this.gameboard);
         if (this.gameboard.checkVictory()) {
-          alert(`Ruf roh ${this.name}... You lost!`);
+          dotMatrixObject.displayString(`Bark! You lost!`);
         }
       }
     }

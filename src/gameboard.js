@@ -9,10 +9,10 @@ export class Gameboard {
   #board;
   #dogs;
 
-  constructor(domBoard) {
+  constructor(domBoard, domGrid) {
     this.resetBoard();
     this.domBoard = domBoard;
-    this.domGrid = domBoard.querySelector(".board-grid");
+    this.domGrid = domGrid;
   }
 
   // adds a pre-existing Dog (e.g. from the #dogs array) starting at firstCoord and ending at secondCoord
@@ -175,7 +175,7 @@ export class Gameboard {
   // 1 -> make no change, return false
   // {dog: dogObject, treated: false} -> {dog: dogObject, treated: true}
   // {dog: dogObject, treated: true} -> make no change, return false
-  receiveTreat(coords) {
+  receiveTreat(coords, dotMatrixObject) {
     const currentValue = this.getCoord(coords);
     const xCoord = coords[0];
     const yCoord = coords[1];
@@ -197,7 +197,6 @@ export class Gameboard {
         currentValue.dog.coords.forEach((coord) => {
           displayGridItem(coord, this);
         });
-        alert(`${currentValue.dog.name} has been fully fed!`);
       } else {
         displayGridItem(coords, this); // Only needs to update THIS coord
       }

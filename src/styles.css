@@ -4,7 +4,8 @@
 
 body {
   font-family: "Arial", sans-serif;
-  background-color: #f0f8ff;
+  background-color: #2e2e2e;
+  color: #fff;
   margin: 0;
   padding: 0;
   display: flex;
@@ -14,18 +15,21 @@ body {
 
 .banner {
   background-color: #ffcc00;
-  width: 100%;
+  width: calc(100% - 40px);
   text-align: center;
   padding: 20px;
   font-size: 2rem;
-  color: #fff;
   font-weight: bold;
 }
 
-.game-container {
-  display: flex;
-  justify-content: space-between;
+#game-container {
   width: 80%;
+}
+
+#game-boards {
+  display: flex;
+  justify-content: space-around;
+  gap: 25px;
   margin-top: 30px;
 }
 
@@ -39,7 +43,6 @@ body {
 .game-board-title {
   font-size: 1.5rem;
   margin-bottom: 10px;
-  color: #333;
 }
 
 .logo {
@@ -65,6 +68,7 @@ body {
   align-items: center;
   position: relative;
 
+  color: black;
   font-size: 20px;
 }
 
@@ -141,4 +145,32 @@ body {
   opacity: 0.5;
   pointer-events: none; /* To make sure it doesn’t interfere with grid clicks */
   z-index: 10;
+}
+
+.dot-matrix {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.digit-container {
+  display: grid;
+  gap: 2px;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+}
+
+.digit-container .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgb(70, 70, 70);
+}
+
+.digit-container .dot.lit {
+  background: rgb(47, 255, 47);
+  -webkit-box-shadow: 0px 0px 15px 0px rgba(157, 255, 148, 1);
+  -moz-box-shadow: 0px 0px 15px 0px rgba(157, 255, 148, 1);
+  box-shadow: 0px 0px 15px 0px rgba(157, 255, 148, 1);
 }

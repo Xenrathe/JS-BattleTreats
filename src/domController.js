@@ -1,4 +1,5 @@
 import { Player } from "./player";
+import { DotMatrix } from "./dotMatrixController";
 import treatMiss from "./images/red-treat.png";
 
 const images = require.context("./images/dogs", false, /\.(png|jpe?g|svg)$/);
@@ -14,11 +15,16 @@ const opponentBoard = document.querySelector("#opponent-gameboard");
 const userBoard = document.querySelector("#player-gameboard");
 let userPlayer = null;
 let opponentPlayer = null;
+let dotMatrix = null;
 let dogImages = [];
 
 export function initializeDom() {
   const newGameBtn = document.querySelector("#new-game-btn");
   newGameBtn.addEventListener("click", () => startNewGame());
+
+  const dotMatrixContainer = document.querySelector("#dot-matrix-container");
+  dotMatrix = new DotMatrix(dotMatrixContainer, 15);
+  dotMatrix.displayString("NEW GAME?");
 }
 
 function startNewGame() {
@@ -32,8 +38,18 @@ function startNewGame() {
 }
 
 function initializeNewGame(firstPlayerName, secondPlayerName) {
-  userPlayer = new Player(firstPlayerName, true, userBoard);
-  opponentPlayer = new Player(secondPlayerName, false, opponentBoard);
+  userPlayer = new Player(
+    firstPlayerName,
+    true,
+    userBoard,
+    userBoard.querySelector(".board-grid")
+  );
+  opponentPlayer = new Player(
+    secondPlayerName,
+    false,
+    opponentBoard,
+    opponentBoard.querySelector(".board-grid")
+  );
 
   // Clear any dog images FIRST
   dogImages.forEach((dogImg) => {
@@ -49,6 +65,8 @@ function initializeNewGame(firstPlayerName, secondPlayerName) {
   opponentPlayer.gameboard.resetBoard();
   opponentPlayer.gameboard.randomlyPlaceDogs();
   initializeBoard(opponentPlayer);
+
+  dotMatrix.displayString("GAME BEGIN!");
 }
 
 function initializeBoard(playerObject) {
@@ -75,7 +93,11 @@ function initializeBoard(playerObject) {
       gridCell.id = `${row}${col}`;
       gridCell.classList.add("grid-cell");
       gridCell.addEventListener("click", () =>
-        guessingPlayer.giveTreat([col - 1, letterToNumber(row)], playerObject)
+        guessingPlayer.giveTreat(
+          [col - 1, letterToNumber(row)],
+          playerObject,
+          dotMatrix
+        )
       );
       domGrid.appendChild(gridCell);
     });
@@ -166,23 +188,6 @@ export function displayDog(dog, boardObject) {
   const firstCell = boardDom.querySelector(
     `#${numberToLetter(coords[0][1]) + (coords[0][0] + 1)}`
   );
-
-  // dynamically adjust size and position
-  /*
-  const cellRect = firstCell.getBoundingClientRect();
-  dogImage.style.top = `${cellRect.top}px`;
-  dogImage.style.left = `${cellRect.left}px`;
-  dogImage.style.width = `${cellRect.width * coords.length}px`;
-  dogImage.style.height = `${cellRect.height}px`;
-
-  if (isVertical) {
-    dogImage.style.transform = "rotate(90deg)";
-    dogImage.style.transformOrigin = "top left"; // Adjust rotation anchor
-    dogImage.style.top = `${cellRect.top}px`;
-    dogImage.style.left = `${cellRect.left + cellRect.width}px`; // Offset left to align with grid start
-  }
-
-  document.body.appendChild(dogImage);*/
 
   dogImage.style.width = `${coords.length * 100}%`; // Span the width of the cell or multiple cells
   dogImage.style.height = "100%";
