@@ -171,11 +171,11 @@ export class Gameboard {
   }
 
   // attempts to treat a given coords (an array of length 2: [x, y])
-  // 0 -> 1
+  // 0 -> 1, return 1
   // 1 -> make no change, return false
-  // {dog: dogObject, treated: false} -> {dog: dogObject, treated: true}
+  // {dog: dogObject, treated: false} -> {dog: dogObject, treated: true}, return dogObject
   // {dog: dogObject, treated: true} -> make no change, return false
-  receiveTreat(coords, dotMatrixObject) {
+  receiveTreat(coords) {
     const currentValue = this.getCoord(coords);
     const xCoord = coords[0];
     const yCoord = coords[1];
@@ -185,7 +185,7 @@ export class Gameboard {
     } else if (currentValue == 0) {
       this.#board[xCoord][yCoord] = 1;
       displayGridItem(coords, this);
-      return true;
+      return 1;
     } else if (currentValue.treated == true) {
       return false;
     } else {
@@ -200,7 +200,7 @@ export class Gameboard {
       } else {
         displayGridItem(coords, this); // Only needs to update THIS coord
       }
-      return true;
+      return currentValue.dog;
     }
   }
 

@@ -11,7 +11,6 @@ export class Player {
   giveTreat(coords, opposingPlayer, dotMatrixObject) {
     const boardToTreat = opposingPlayer.gameboard;
 
-    console.log("giveTreat dotMatrix: " + dotMatrixObject);
     // No more moves after treating
     if (boardToTreat.checkVictory() || this.gameboard.checkVictory()) {
       return;
@@ -19,10 +18,20 @@ export class Player {
 
     // Immediately have opposingPlayer - IF AI - make their turn
     // Also check for victory after moves were made
-    if (boardToTreat.receiveTreat(coords, dotMatrixObject) && this.isHuman) {
+    const result = boardToTreat.receiveTreat(coords);
+    if (result !== false && this.isHuman) {
       if (boardToTreat.checkVictory()) {
         dotMatrixObject.displayString("Woof! You won!");
       } else {
+        if (result == 1) {
+          dotMatrixObject.displayString("Miss!");
+        } else {
+          if (result.isSatiated()) {
+            dotMatrixObject.displayString(`${result.name} full!`);
+          } else {
+            dotMatrixObject.displayString(`Fed ${result.name}`);
+          }
+        }
         opposingPlayer.AI_giveTreat("random", this.gameboard);
         if (this.gameboard.checkVictory()) {
           dotMatrixObject.displayString(`Bark! You lost!`);
@@ -38,7 +47,7 @@ export class Player {
       do {
         x = Math.round(Math.random() * 9);
         y = Math.round(Math.random() * 9);
-      } while (!boardToTreat.receiveTreat([x, y]));
+      } while (boardToTreat.receiveTreat([x, y]) === false);
     }
   }
 }

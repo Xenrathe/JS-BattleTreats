@@ -10,6 +10,8 @@ export class DotMatrix {
 
   // take in a line and display it character-by-character on dot matrix
   displayString(stringToDisplay) {
+    this.#clearDisplay();
+
     // check to make sure string isn't too long
     if (stringToDisplay.length > this.length) {
       console.error("DotMatrix error: string too long");
@@ -50,6 +52,12 @@ export class DotMatrix {
 
     this.#dotMatrixElement.appendChild(digitContainer);
     return digitContainer;
+  }
+
+  #clearDisplay() {
+    this.#digitElements.forEach((digiElement) => {
+      this.#displayCharacter(digiElement, " ");
+    });
   }
 
   // internal helper function: take in a single letter and display the dots
