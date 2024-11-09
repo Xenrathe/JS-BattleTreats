@@ -1,7 +1,5 @@
 ## To-do List:
 
-- DOG icons if dog is revealed
-- Instead of ALERTS, create an old-school LED display for messages
 - AI has better guessing strategy
 - AI has better random placement strategy
 - easy / hard modes for AI (easy is pure random, hard uses strategy)
