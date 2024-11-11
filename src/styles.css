@@ -72,7 +72,7 @@ body {
   font-size: 20px;
 }
 
-.board-grid .grid-cell img {
+.board-grid .grid-cell .miss-img {
   width: calc(var(--cell-size) * 0.7);
   height: calc(var(--cell-size) * 0.7);
 }
@@ -142,9 +142,27 @@ body {
   top: 0px;
   left: 0px;
 
+  height: 40px;
+
   opacity: 0.5;
   pointer-events: none; /* To make sure it doesn’t interfere with grid clicks */
   z-index: 10;
+}
+
+.dog-image.L2 {
+  width: calc(2 * (var(--cell-size) + 1px) + 5px);
+}
+
+.dog-image.L3 {
+  width: calc(3 * (var(--cell-size) + 1px) + 10px);
+}
+
+.dog-image.L4 {
+  width: calc(4 * (var(--cell-size) + 1px) + 15px);
+}
+
+.dog-image.L5 {
+  width: calc(5 * (var(--cell-size) + 1px) + 20px);
 }
 
 .dot-matrix {

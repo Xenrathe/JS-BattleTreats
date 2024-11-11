@@ -77,7 +77,7 @@ function initializeBoard(playerObject) {
   //setup the board titles
   boardObject.domBoard.querySelector(
     ".game-board-title"
-  ).textContent = `${playerObject.name}'s Dogs`;
+  ).textContent = `${playerObject.name}'s Yard`;
 
   //setup the grid
   const domGrid = boardObject.domGrid;
@@ -132,6 +132,7 @@ export function displayGridItem(coord, boardObject) {
   if (coordStatus == 1) {
     const miss_image = document.createElement("img");
     miss_image.src = treatMiss;
+    miss_image.classList.add("miss-img");
     coordDiv.appendChild(miss_image);
   }
   // NO TREAT / EMPTY CELL
@@ -184,13 +185,11 @@ export function displayDog(dog, boardObject) {
   dogImage.src = imagePaths[name.toLowerCase()];
   dogImage.alt = name;
   dogImage.classList.add("dog-image");
+  dogImage.classList.add(`L${coords.length}`);
 
   const firstCell = boardDom.querySelector(
     `#${numberToLetter(coords[0][1]) + (coords[0][0] + 1)}`
   );
-
-  dogImage.style.width = `${coords.length * 100}%`; // Span the width of the cell or multiple cells
-  dogImage.style.height = "100%";
 
   if (isVertical) {
     dogImage.style.transform = "rotate(90deg) translate(0, -100%)";
