@@ -13,6 +13,7 @@ images.keys().forEach((key) => {
 
 const opponentBoard = document.querySelector("#opponent-gameboard");
 const userBoard = document.querySelector("#player-gameboard");
+let gameStarted = false;
 let userPlayer = null;
 let opponentPlayer = null;
 let dotMatrix = null;
@@ -25,19 +26,31 @@ export function initializeDom() {
   const dotMatrixContainer = document.querySelector("#dot-matrix-container");
   dotMatrix = new DotMatrix(dotMatrixContainer, 15);
   dotMatrix.displayString("NEW GAME?");
+  dotMatrixContainer.addEventListener("click", () => beginGame());
+
+  const kennelDogs = document.querySelectorAll(".kennel-dog img");
+  kennelDogs.forEach((dogImg) => {
+    dogImg.draggable = true;
+    dogImg.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("dog-name", dogImg.dataset.dog);
+      dogImg.classList.add("almost-hidden");
+    });
+
+    dogImg.addEventListener("dragend", (e) => {
+      dogImg.classList.remove("almost-hidden");
+    });
+  });
 }
 
+// Puts game into initial state
 function startNewGame() {
   let firstPlayerName = null;
+  gameStarted = false;
 
   while (firstPlayerName == null) {
     firstPlayerName = prompt("Please enter your name", "Legend");
   }
 
-  initializeNewGame(firstPlayerName, "Neighbor");
-}
-
-function initializeNewGame(firstPlayerName, secondPlayerName) {
   userPlayer = new Player(
     firstPlayerName,
     true,
@@ -45,7 +58,7 @@ function initializeNewGame(firstPlayerName, secondPlayerName) {
     userBoard.querySelector(".board-grid")
   );
   opponentPlayer = new Player(
-    secondPlayerName,
+    "Neighbor",
     false,
     opponentBoard,
     opponentBoard.querySelector(".board-grid")
@@ -57,8 +70,15 @@ function initializeNewGame(firstPlayerName, secondPlayerName) {
   });
   dogImages = [];
 
+  // Reset kennel visibility
+  const kennelDogs = document.querySelectorAll(".kennel-dog img");
+  kennelDogs.forEach((kennelImg) => {
+    kennelImg.classList.remove("hidden");
+    kennelImg.classList.remove("almost-hidden");
+  });
+
   userPlayer.gameboard.resetBoard();
-  userPlayer.gameboard.randomlyPlaceDogs();
+  //userPlayer.gameboard.randomlyPlaceDogs();
   initializeBoard(userPlayer);
   displayGrid(userPlayer.gameboard);
 
@@ -66,7 +86,18 @@ function initializeNewGame(firstPlayerName, secondPlayerName) {
   opponentPlayer.gameboard.randomlyPlaceDogs();
   initializeBoard(opponentPlayer);
 
-  dotMatrix.displayString("GAME BEGIN!");
+  dotMatrix.displayString("PLACE DOGS");
+}
+
+// Actually starts the gameplay
+function beginGame() {
+  if (gameStarted == false) {
+    // make sure all player dogs are placed
+    if (userPlayer.gameboard.areAllDogsPlaced()) {
+      dotMatrix.displayString("GAME BEGIN!");
+      gameStarted = true;
+    }
+  }
 }
 
 function initializeBoard(playerObject) {
@@ -92,13 +123,30 @@ function initializeBoard(playerObject) {
       gridCell.setAttribute("data-coords", `${row}${col}`);
       gridCell.id = `${row}${col}`;
       gridCell.classList.add("grid-cell");
-      gridCell.addEventListener("click", () =>
-        guessingPlayer.giveTreat(
-          [col - 1, letterToNumber(row)],
-          playerObject,
-          dotMatrix
-        )
-      );
+
+      //add various event listeners
+      if (guessingPlayer == userPlayer) {
+        gridCell.addEventListener("click", () => {
+          if (gameStarted) {
+            guessingPlayer.giveTreat(
+              [col - 1, letterToNumber(row)],
+              playerObject,
+              dotMatrix
+            );
+          }
+        });
+      }
+
+      gridCell.addEventListener("dragover", (e) => {
+        e.preventDefault();
+      });
+
+      if (playerObject == userPlayer) {
+        gridCell.addEventListener("drop", (e) =>
+          dropDogOnCell(e, col, letterToNumber(row), playerObject)
+        );
+      }
+
       domGrid.appendChild(gridCell);
     });
   });
@@ -179,7 +227,12 @@ export function displayDog(dog, boardObject) {
   const { coords, name } = dog;
   const boardDom = boardObject.domBoard;
 
-  const isVertical = coords[0][0] == coords[1][0];
+  // do not display dog if it's not on board yet
+  if (coords.length == 0) {
+    return;
+  }
+
+  const isVertical = dog.isVertical();
 
   const dogImage = document.createElement("img");
   dogImage.src = imagePaths[name.toLowerCase()];
@@ -192,12 +245,50 @@ export function displayDog(dog, boardObject) {
   );
 
   if (isVertical) {
-    dogImage.style.transform = "rotate(90deg) translate(0, -100%)";
-    dogImage.style.transformOrigin = "top left"; // Keep the top-left corner as the anchor
+    dogImage.classList.add("vertical");
   }
 
   firstCell.appendChild(dogImage);
   dogImages.push(dogImage);
+}
+
+function dropDogOnCell(event, x, y, playerObject) {
+  if (gameStarted) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const gameboard = playerObject.gameboard;
+  const dogName = event.dataTransfer.getData("dog-name");
+  const dogObject = gameboard.getDogByName(dogName);
+  const dogLength = dogObject.length;
+  const firstCoord = [x - 1, y];
+  const secondCoord = dogObject.isVertical()
+    ? [firstCoord[0], firstCoord[1] + dogLength - 1]
+    : [firstCoord[0] + dogLength - 1, firstCoord[1]];
+
+  const dropSuccessful = gameboard.addDogByName(
+    dogName,
+    firstCoord,
+    secondCoord,
+    false
+  );
+
+  const kennelDogImage = document.querySelector(
+    `.kennel-dogs [data-dog="${dogName}"]`
+  );
+  if (dropSuccessful) {
+    displayDog(dogObject, gameboard);
+    kennelDogImage.classList.add("hidden");
+
+    if (gameboard.areAllDogsPlaced()) {
+      dotMatrix.displayString("CLICK TO START");
+    }
+  } else {
+    kennelDogImage.classList.remove("almost-hidden");
+    console.error("Dog placement failed, returned to kennel.");
+  }
 }
 
 // helper function to convert coord #s 0, 1, etc to corresponding vertical axis coords 'A', 'B', etc

@@ -15,9 +15,22 @@ export class Gameboard {
     this.domGrid = domGrid;
   }
 
+  // used to check for game readiness
+  areAllDogsPlaced() {
+    let dogsAllPlaced = true;
+    this.#dogs.forEach((dog) => {
+      if (dog.coords.length == 0) {
+        dogsAllPlaced = false;
+      }
+    });
+
+    return dogsAllPlaced;
+  }
+
   // adds a pre-existing Dog (e.g. from the #dogs array) starting at firstCoord and ending at secondCoord
   // returns false for incorrect coords (diagonal, out of bounds, already occupied, etc)
-  addDog(dogObject, firstCoord, secondCoord) {
+  // preventAdjacency is used for AI / random placement, if true it will prevent placing a dog next to another dog
+  addDog(dogObject, firstCoord, secondCoord, preventAdjacency) {
     // Return false if an invalid point
     if (
       this.getCoord(firstCoord) == null ||
@@ -43,10 +56,16 @@ export class Gameboard {
       const step = startYCoord < endYCoord ? 1 : -1; //Could be increase or decrease
 
       //check for overlapping dogs
+      //potentially check for adjacency
       for (let y = startYCoord; y != endYCoord + step; y += step) {
         if (Object.keys(this.#board[x][y]).includes("treated")) {
-          console.log("addDog error: Pavlov's exclusion principle");
           return false;
+        }
+
+        if (preventAdjacency) {
+          if (this.#checkAdjacency([x, y])) {
+            return false;
+          }
         }
       }
 
@@ -75,9 +94,16 @@ export class Gameboard {
       const step = startXCoord < endXCoord ? 1 : -1; //Could be increase or decrease
 
       //check for overlapping dogs
+      //potentially check for adjacency
       for (let x = startXCoord; x != endXCoord + step; x += step) {
         if (Object.keys(this.#board[x][y]).includes("treated")) {
           return false;
+        }
+
+        if (preventAdjacency) {
+          if (this.#checkAdjacency([x, y])) {
+            return false;
+          }
         }
       }
 
@@ -94,9 +120,38 @@ export class Gameboard {
     }
   }
 
+  // for a given point, returns true if there is an adjacent (orthogonal) dog
+  #checkAdjacency(coordToCheck) {
+    const pointsToCheck = [
+      [coordToCheck[0], coordToCheck[1] - 1],
+      [coordToCheck[0], coordToCheck[1] + 1],
+      [coordToCheck[0] - 1, coordToCheck[1]],
+      [coordToCheck[0] + 1, coordToCheck[1]],
+    ];
+    let adjacencyFound = false;
+
+    pointsToCheck.forEach((point) => {
+      if (typeof this.getCoord(point) == "object") {
+        adjacencyFound = true;
+      }
+    });
+
+    return adjacencyFound;
+  }
+
   // finds the given dog in #dogs and then calls addDog for that dog
-  // returns false if no such dog was found in #dogs
-  addDogByName(dogName, firstCoord, secondCoord) {
+  // returns false if no such dog was found in #dogs or placement was erroneous
+  addDogByName(dogName, firstCoord, secondCoord, preventAdjacency) {
+    const dogObject = this.getDogByName(dogName);
+
+    if (dogObject != null) {
+      return this.addDog(dogObject, firstCoord, secondCoord, preventAdjacency);
+    } else {
+      return false;
+    }
+  }
+
+  getDogByName(dogName) {
     let dogObject = null;
     this.#dogs.forEach((dog) => {
       if (dog.name == dogName) {
@@ -104,11 +159,7 @@ export class Gameboard {
       }
     });
 
-    if (dogObject != null) {
-      this.addDog(dogObject, firstCoord, secondCoord);
-    } else {
-      return false;
-    }
+    return dogObject;
   }
 
   // returns true if all Dogs in #dogs have been fully fed
@@ -147,24 +198,23 @@ export class Gameboard {
   }
 
   // used for AI or lazy players to just put their dogs randomly
+  // makes certain no dogs are adjacent but otherwise applies no strategy
   randomlyPlaceDogs() {
     this.#dogs.forEach((dog) => {
       let isPlaced = false;
-      let counter = 0;
-      while (!isPlaced && counter < 10) {
+      while (!isPlaced) {
         // randomly choose between horizontal or vertical
         // VERTICAL
-        counter++;
         if (Math.round(Math.random()) == 0) {
           const x = Math.round(Math.random() * 9);
           const y = Math.round(Math.random() * (10 - dog.length));
-          isPlaced = this.addDog(dog, [x, y], [x, y + dog.length - 1]);
+          isPlaced = this.addDog(dog, [x, y], [x, y + dog.length - 1], true);
         }
         // HORIZONTAL
         else {
           const x = Math.round(Math.random() * (10 - dog.length));
           const y = Math.round(Math.random() * 9);
-          isPlaced = this.addDog(dog, [x, y], [x + dog.length - 1, y]);
+          isPlaced = this.addDog(dog, [x, y], [x + dog.length - 1, y], true);
         }
       }
     });

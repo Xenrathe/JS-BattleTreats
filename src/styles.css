@@ -72,11 +72,6 @@ body {
   font-size: 20px;
 }
 
-.board-grid .grid-cell .miss-img {
-  width: calc(var(--cell-size) * 0.7);
-  height: calc(var(--cell-size) * 0.7);
-}
-
 .grid-labels {
   display: flex;
   justify-content: space-between;
@@ -116,7 +111,11 @@ body {
 }
 
 .hidden {
-  visibility: hidden;
+  display: none;
+}
+
+.almost-hidden {
+  opacity: 0.5;
 }
 
 .status-text {
@@ -137,16 +136,44 @@ body {
   cursor: crosshair;
 }
 
+/* IMAGE STUFF */
+.board-grid .grid-cell .miss-img {
+  width: calc(var(--cell-size) * 0.7);
+  height: calc(var(--cell-size) * 0.7);
+}
+
 .dog-image {
+  height: 40px;
+  z-index: 10;
+}
+
+.dog-image.vertical {
+  transform: rotate(90deg) translate(0, -100%);
+  transform-origin: top left;
+}
+
+.grid-cell .dog-image {
   position: absolute;
   top: 0px;
   left: 0px;
 
-  height: 40px;
-
   opacity: 0.5;
   pointer-events: none; /* To make sure it doesn’t interfere with grid clicks */
-  z-index: 10;
+}
+
+.kennels {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 500px;
+}
+
+.kennels .kennel-dogs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
 }
 
 .dog-image.L2 {
@@ -165,6 +192,7 @@ body {
   width: calc(5 * (var(--cell-size) + 1px) + 20px);
 }
 
+/* DOT MATRIX STUFF */
 .dot-matrix {
   display: flex;
   justify-content: center;

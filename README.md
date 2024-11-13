@@ -1,9 +1,10 @@
 ## To-do List:
 
-- AI has better guessing strategy
-- AI has better random placement strategy
-- easy / hard modes for AI (easy is pure random, hard uses strategy)
-- User placement / drag for initial dog setup
+- Dog placement: Can drag dogs AFTER placement (but before gameStart)
+- Dog placement: Click dog to turn vertical (the 'rotation anchor' should be the clicked cell)
+- Dog placement: More precise dragging / dropping
+- Kennel button for random placement
+- better new game button, better banner / logo
 - responsive / mobile design
 
 ## Attribution

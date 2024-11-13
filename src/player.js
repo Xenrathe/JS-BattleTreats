@@ -81,7 +81,6 @@ export class Player {
 
       // guess random if no valid points to build from exist
       if (uncoveredGridDog == null) {
-        console.log("switching to random mode!");
         this.AI_giveTreat("random", boardToTreat);
       }
       // otherwise let's find a good adjacent point

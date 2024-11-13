@@ -40,7 +40,6 @@ export class DotMatrix {
 
   // internal helper function: create dom elements for each digit
   #addEmptyDigit() {
-    console.log("addEmptyDigit called");
     const digitContainer = document.createElement("div");
     digitContainer.classList.add("digit-container");
 
