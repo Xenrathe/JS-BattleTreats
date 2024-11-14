@@ -55,10 +55,13 @@ export class Gameboard {
 
       const step = startYCoord < endYCoord ? 1 : -1; //Could be increase or decrease
 
-      //check for overlapping dogs
+      //check for overlapping dogs (not including self)
       //potentially check for adjacency
       for (let y = startYCoord; y != endYCoord + step; y += step) {
-        if (Object.keys(this.#board[x][y]).includes("treated")) {
+        if (
+          Object.keys(this.#board[x][y]).includes("treated") &&
+          this.#board[x][y].dog != dogObject
+        ) {
           return false;
         }
 
@@ -69,6 +72,7 @@ export class Gameboard {
         }
       }
 
+      dogObject.coords = [];
       for (let y = startYCoord; y != endYCoord + step; y += step) {
         this.#board[x][y] = { dog: dogObject, treated: false };
         dogObject.addCoord([x, y]);
@@ -93,10 +97,13 @@ export class Gameboard {
 
       const step = startXCoord < endXCoord ? 1 : -1; //Could be increase or decrease
 
-      //check for overlapping dogs
+      //check for overlapping dogs (not including self)
       //potentially check for adjacency
       for (let x = startXCoord; x != endXCoord + step; x += step) {
-        if (Object.keys(this.#board[x][y]).includes("treated")) {
+        if (
+          Object.keys(this.#board[x][y]).includes("treated") &&
+          this.#board[x][y].dog != dogObject
+        ) {
           return false;
         }
 
@@ -107,6 +114,7 @@ export class Gameboard {
         }
       }
 
+      dogObject.coords = [];
       for (let x = startXCoord; x != endXCoord + step; x += step) {
         this.#board[x][y] = { dog: dogObject, treated: false };
         dogObject.addCoord([x, y]);

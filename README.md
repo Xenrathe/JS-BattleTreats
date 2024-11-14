@@ -1,9 +1,11 @@
 ## To-do List:
 
-- Dog placement: Can drag dogs AFTER placement (but before gameStart)
 - Dog placement: Click dog to turn vertical (the 'rotation anchor' should be the clicked cell)
 - Dog placement: More precise dragging / dropping
 - Kennel button for random placement
+- improve the dotmatrix some
+- allow cancelling of new game
+- instructions for placing dogs - overlap neighbor's yard?
 - better new game button, better banner / logo
 - responsive / mobile design
 

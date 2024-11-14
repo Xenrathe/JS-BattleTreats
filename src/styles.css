@@ -158,6 +158,9 @@ body {
   left: 0px;
 
   opacity: 0.5;
+}
+
+#opponent-gameboard .grid-cell .dog-image {
   pointer-events: none; /* To make sure it doesn’t interfere with grid clicks */
 }
 

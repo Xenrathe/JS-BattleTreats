@@ -226,10 +226,17 @@ export function displayGridItem(coord, boardObject) {
 export function displayDog(dog, boardObject) {
   const { coords, name } = dog;
   const boardDom = boardObject.domBoard;
+  const boardGrid = boardObject.domGrid;
 
   // do not display dog if it's not on board yet
   if (coords.length == 0) {
     return;
+  }
+
+  // remove any pre-existing dog image
+  const gridDogImage = boardGrid.querySelector(`img[data-dog=${name}`);
+  if (gridDogImage) {
+    gridDogImage.remove();
   }
 
   const isVertical = dog.isVertical();
@@ -239,6 +246,20 @@ export function displayDog(dog, boardObject) {
   dogImage.alt = name;
   dogImage.classList.add("dog-image");
   dogImage.classList.add(`L${coords.length}`);
+
+  // drag/drop stuff
+  dogImage.dataset.dog = name;
+  dogImage.dataset.orientation = isVertical ? "ver" : "hor";
+  dogImage.addEventListener("dragstart", (e) => {
+    e.dataTransfer.setData("dog-name", dogImage.dataset.dog);
+    dogImage.classList.add("almost-hidden");
+  });
+
+  dogImage.addEventListener("dragend", () => {
+    dogImage.classList.remove("almost-hidden");
+  });
+
+  dogImage.addEventListener("click", (e) => rotateDogPlacement(e, boardObject));
 
   const firstCell = boardDom.querySelector(
     `#${numberToLetter(coords[0][1]) + (coords[0][0] + 1)}`
@@ -262,6 +283,7 @@ function dropDogOnCell(event, x, y, playerObject) {
   const gameboard = playerObject.gameboard;
   const dogName = event.dataTransfer.getData("dog-name");
   const dogObject = gameboard.getDogByName(dogName);
+  dogObject.coords = []; //reset
   const dogLength = dogObject.length;
   const firstCoord = [x - 1, y];
   const secondCoord = dogObject.isVertical()
@@ -278,9 +300,13 @@ function dropDogOnCell(event, x, y, playerObject) {
   const kennelDogImage = document.querySelector(
     `.kennel-dogs [data-dog="${dogName}"]`
   );
+
   if (dropSuccessful) {
     displayDog(dogObject, gameboard);
-    kennelDogImage.classList.add("hidden");
+
+    if (kennelDogImage) {
+      kennelDogImage.classList.add("hidden");
+    }
 
     if (gameboard.areAllDogsPlaced()) {
       dotMatrix.displayString("CLICK TO START");
@@ -289,6 +315,85 @@ function dropDogOnCell(event, x, y, playerObject) {
     kennelDogImage.classList.remove("almost-hidden");
     console.error("Dog placement failed, returned to kennel.");
   }
+}
+
+function rotateDogPlacement(event, gameboard) {
+  const dogImage = event.currentTarget;
+  const dogName = dogImage.getAttribute("data-dog");
+  const dogObject = gameboard.getDogByName(dogName);
+
+  const isVertical = dogObject.isVertical();
+  const nearestCellCoord = findNearestCellCoord(event, dogObject);
+
+  // calculate the new coordinates for counter-clockwise rotation
+  const newCoordsCCW = calculateNewCoords(dogObject, nearestCellCoord, false);
+  const newCoordsCW = calculateNewCoords(dogObject, nearestCellCoord, true);
+
+  // try to add dog CCW first then CW (go go || short-circuit)
+  if (
+    gameboard.addDogByName(
+      dogName,
+      newCoordsCCW[0],
+      newCoordsCCW[newCoordsCCW.length - 1],
+      false
+    ) ||
+    gameboard.addDogByName(
+      dogName,
+      newCoordsCW[0],
+      newCoordsCW[newCoordsCW.length - 1],
+      false
+    )
+  ) {
+    console.log(dogObject.coords);
+    dogImage.dataset.orientation = isVertical ? "ver" : "hor";
+    dogImage.classList.toggle("vertical", dogObject.isVertical());
+    displayDog(dogObject, gameboard);
+  }
+}
+
+// helper function for rotateDogPlacement
+function findNearestCellCoord(event, dogObject) {
+  // note that we only need X - even when the image is rotated vertically
+  // the browser / JS accounts for this rotation
+  const clickX = event.offsetX;
+  const imageWidth = event.target.offsetWidth;
+  const segmentIndex = Math.floor(clickX / (imageWidth / dogObject.length));
+
+  return dogObject.coords[segmentIndex];
+}
+
+// helper function to calculate new coordinates based on rotation & pivot point
+function calculateNewCoords(dogObject, pivotCoord, clockwise = false) {
+  const newCoords = [];
+  const pivotIndex = dogObject.coords.findIndex(
+    (coord) => coord[0] === pivotCoord[0] && coord[1] === pivotCoord[1]
+  );
+
+  if (pivotIndex === -1) return null; // just in case I be makin da mistake
+
+  // offset for rotation direction
+  const offset = clockwise ? 1 : -1;
+
+  for (let i = 0; i < dogObject.coords.length; i++) {
+    const currentCoord = dogObject.coords[i];
+    const deltaX = currentCoord[0] - pivotCoord[0];
+    const deltaY = currentCoord[1] - pivotCoord[1];
+
+    // rotate each coordinate around the pivot by 90 degrees
+    const rotatedX = pivotCoord[0] + offset * deltaY;
+    const rotatedY = pivotCoord[1] - offset * deltaX;
+    newCoords.push([rotatedX, rotatedY]);
+  }
+
+  // sort newCoords so the first item is the most top-leftish coord
+  // this is important because displayDog assumes that the first coord is the most top-leftish
+  newCoords.sort((a, b) => {
+    if (a[1] === b[1]) return a[0] - b[0];
+    return a[1] - b[1];
+  });
+
+  console.log("pivotCoord: " + pivotCoord);
+  return newCoords;
 }
 
 // helper function to convert coord #s 0, 1, etc to corresponding vertical axis coords 'A', 'B', etc
