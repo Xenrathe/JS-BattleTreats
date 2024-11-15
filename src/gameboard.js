@@ -15,18 +15,6 @@ export class Gameboard {
     this.domGrid = domGrid;
   }
 
-  // used to check for game readiness
-  areAllDogsPlaced() {
-    let dogsAllPlaced = true;
-    this.#dogs.forEach((dog) => {
-      if (dog.coords.length == 0) {
-        dogsAllPlaced = false;
-      }
-    });
-
-    return dogsAllPlaced;
-  }
-
   // adds a pre-existing Dog (e.g. from the #dogs array) starting at firstCoord and ending at secondCoord
   // returns false for incorrect coords (diagonal, out of bounds, already occupied, etc)
   // preventAdjacency is used for AI / random placement, if true it will prevent placing a dog next to another dog
@@ -36,7 +24,7 @@ export class Gameboard {
       this.getCoord(firstCoord) == null ||
       this.getCoord(secondCoord) == null
     ) {
-      console.log("addDog error: coords invalid");
+      console.error(`addDog error: ${firstCoord} or ${secondCoord} invalid`);
       return false;
     }
 
@@ -49,7 +37,7 @@ export class Gameboard {
       //check for length mismatch
       const length = Math.abs(startYCoord - endYCoord) + 1;
       if (length != dogObject.length) {
-        console.log("addDog error: vertical length mismatch");
+        console.error("addDog error: vertical length mismatch");
         return false;
       }
 
@@ -62,6 +50,9 @@ export class Gameboard {
           Object.keys(this.#board[x][y]).includes("treated") &&
           this.#board[x][y].dog != dogObject
         ) {
+          console.error(
+            `dogPlacement: overlap with ${this.#board[x][y].dog.name}`
+          );
           return false;
         }
 
@@ -72,6 +63,7 @@ export class Gameboard {
         }
       }
 
+      this.removeDog(dogObject);
       dogObject.coords = [];
       for (let y = startYCoord; y != endYCoord + step; y += step) {
         this.#board[x][y] = { dog: dogObject, treated: false };
@@ -104,6 +96,9 @@ export class Gameboard {
           Object.keys(this.#board[x][y]).includes("treated") &&
           this.#board[x][y].dog != dogObject
         ) {
+          console.error(
+            `dogPlacement: overlap with ${this.#board[x][y].dog.name}`
+          );
           return false;
         }
 
@@ -114,6 +109,7 @@ export class Gameboard {
         }
       }
 
+      this.removeDog(dogObject);
       dogObject.coords = [];
       for (let x = startXCoord; x != endXCoord + step; x += step) {
         this.#board[x][y] = { dog: dogObject, treated: false };
@@ -128,25 +124,6 @@ export class Gameboard {
     }
   }
 
-  // for a given point, returns true if there is an adjacent (orthogonal) dog
-  #checkAdjacency(coordToCheck) {
-    const pointsToCheck = [
-      [coordToCheck[0], coordToCheck[1] - 1],
-      [coordToCheck[0], coordToCheck[1] + 1],
-      [coordToCheck[0] - 1, coordToCheck[1]],
-      [coordToCheck[0] + 1, coordToCheck[1]],
-    ];
-    let adjacencyFound = false;
-
-    pointsToCheck.forEach((point) => {
-      if (typeof this.getCoord(point) == "object") {
-        adjacencyFound = true;
-      }
-    });
-
-    return adjacencyFound;
-  }
-
   // finds the given dog in #dogs and then calls addDog for that dog
   // returns false if no such dog was found in #dogs or placement was erroneous
   addDogByName(dogName, firstCoord, secondCoord, preventAdjacency) {
@@ -159,15 +136,36 @@ export class Gameboard {
     }
   }
 
-  getDogByName(dogName) {
-    let dogObject = null;
+  // used before game-start when moving or rotating dog placement
+  removeDog(dogObject) {
+    dogObject.coords.forEach((coord) => {
+      this.#board[coord[0]][coord[1]] = 0;
+    });
+  }
+
+  // calls removeDog and returns true if dog exists
+  // otherwise returns false
+  removeDogByName(dogName) {
+    const dogObject = this.getDogByName(dogName);
+
+    if (dogObject != null) {
+      this.removeDog(dogObject);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // used to check for game readiness
+  areAllDogsPlaced() {
+    let dogsAllPlaced = true;
     this.#dogs.forEach((dog) => {
-      if (dog.name == dogName) {
-        dogObject = dog;
+      if (dog.coords.length == 0) {
+        dogsAllPlaced = false;
       }
     });
 
-    return dogObject;
+    return dogsAllPlaced;
   }
 
   // returns true if all Dogs in #dogs have been fully fed
@@ -203,6 +201,17 @@ export class Gameboard {
     } else {
       return this.#board[xCoord][yCoord];
     }
+  }
+
+  getDogByName(dogName) {
+    let dogObject = null;
+    this.#dogs.forEach((dog) => {
+      if (dog.name == dogName) {
+        dogObject = dog;
+      }
+    });
+
+    return dogObject;
   }
 
   // used for AI or lazy players to just put their dogs randomly
@@ -276,5 +285,24 @@ export class Gameboard {
       new Dog(4, "Bulldog", 0),
       new Dog(5, "Komondor", 0),
     ];
+  }
+
+  // for a given point, returns true if there is an adjacent (orthogonal) dog
+  #checkAdjacency(coordToCheck) {
+    const pointsToCheck = [
+      [coordToCheck[0], coordToCheck[1] - 1],
+      [coordToCheck[0], coordToCheck[1] + 1],
+      [coordToCheck[0] - 1, coordToCheck[1]],
+      [coordToCheck[0] + 1, coordToCheck[1]],
+    ];
+    let adjacencyFound = false;
+
+    pointsToCheck.forEach((point) => {
+      if (typeof this.getCoord(point) == "object") {
+        adjacencyFound = true;
+      }
+    });
+
+    return adjacencyFound;
   }
 }

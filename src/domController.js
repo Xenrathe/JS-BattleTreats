@@ -283,7 +283,6 @@ function dropDogOnCell(event, x, y, playerObject) {
   const gameboard = playerObject.gameboard;
   const dogName = event.dataTransfer.getData("dog-name");
   const dogObject = gameboard.getDogByName(dogName);
-  dogObject.coords = []; //reset
   const dogLength = dogObject.length;
   const firstCoord = [x - 1, y];
   const secondCoord = dogObject.isVertical()
@@ -313,7 +312,7 @@ function dropDogOnCell(event, x, y, playerObject) {
     }
   } else {
     kennelDogImage.classList.remove("almost-hidden");
-    console.error("Dog placement failed, returned to kennel.");
+    console.error("Dog placement failed.");
   }
 }
 
@@ -344,7 +343,6 @@ function rotateDogPlacement(event, gameboard) {
       false
     )
   ) {
-    console.log(dogObject.coords);
     dogImage.dataset.orientation = isVertical ? "ver" : "hor";
     dogImage.classList.toggle("vertical", dogObject.isVertical());
     displayDog(dogObject, gameboard);
@@ -392,7 +390,6 @@ function calculateNewCoords(dogObject, pivotCoord, clockwise = false) {
     return a[1] - b[1];
   });
 
-  console.log("pivotCoord: " + pivotCoord);
   return newCoords;
 }
 

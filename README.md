@@ -1,7 +1,9 @@
 ## To-do List:
 
-- Dog placement: Click dog to turn vertical (the 'rotation anchor' should be the clicked cell)
+- coords aren't being reset on the actual gameboard from dog rotation
+- Dog dragging: When dragging vertical dog, it's all squished?
 - Dog placement: More precise dragging / dropping
+- AI bug w/ dog placement, not putting at 0 or 9 coords (rounding issue)
 - Kennel button for random placement
 - improve the dotmatrix some
 - allow cancelling of new game

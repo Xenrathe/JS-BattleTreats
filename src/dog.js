@@ -10,20 +10,20 @@ export class Dog {
     this.coords.push(coord);
   }
 
-  isVertical() {
-    if (this.coords.length == 0) {
-      return false;
-    } else {
-      return this.coords[0][0] == this.coords[1][0]; // i.e. x value stays same
-    }
-  }
-
   feed() {
     this.treats += 1;
   }
 
   isSatiated() {
     return this.treats >= this.length;
+  }
+
+  isVertical() {
+    if (this.coords.length == 0) {
+      return false;
+    } else {
+      return this.coords[0][0] == this.coords[1][0]; // i.e. x value stays same
+    }
   }
 
   resetTreats() {
