@@ -90,6 +90,7 @@ function startNewGame() {
     userBoard,
     userBoard.querySelector(".board-grid")
   );
+  window.userPlayer = userPlayer;
   opponentPlayer = new Player(
     "Neighbor",
     false,
@@ -364,6 +365,10 @@ function dropDogOnCell(event, x, y, playerObject) {
 
 // during initial board setup, called to rotate dog when user clicks on dog
 function rotateDogPlacement(event, gameboard) {
+  if (gameStarted) {
+    return;
+  }
+
   const dogImage = event.currentTarget;
   const dogName = dogImage.getAttribute("data-dog");
   const dogObject = gameboard.getDogByName(dogName);
