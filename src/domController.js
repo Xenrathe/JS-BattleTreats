@@ -2,14 +2,48 @@ import { Player } from "./player";
 import { DotMatrix } from "./dotMatrixController";
 import treatMiss from "./images/red-treat.png";
 
+// ************ IMAGE STUFF **********************
 const images = require.context("./images/dogs", false, /\.(png|jpe?g|svg)$/);
 const imagePaths = {};
+const preloadedVerticalImages = {};
 
-images.keys().forEach((key) => {
-  // Get the image name without extension and directory (e.g., pug)
-  const imageName = key.replace("./", "").replace(/\.(png|jpe?g|svg)$/, "");
-  imagePaths[imageName] = images(key);
-});
+export function initialImageProcessing() {
+  // image paths
+  images.keys().forEach((key) => {
+    // get the image name without extension and directory (e.g., pug)
+    const imageName = key.replace("./", "").replace(/\.(png|jpe?g|svg)$/, "");
+    imagePaths[imageName] = images(key);
+  });
+
+  // preload vertical images with dimensions set
+  const dogNames = ["pug", "corgi", "dashund", "bulldog", "komondor"];
+  dogNames.forEach((dog) => {
+    const verticalImage = new Image();
+    verticalImage.src = imagePaths[`${dog}V`];
+    verticalImage.width = 40;
+    switch (dog) {
+      case "pug":
+        verticalImage.height = 87;
+        break;
+      case "bulldog":
+        verticalImage.height = 179;
+        break;
+      case "komondor":
+        verticalImage.height = 225;
+        break;
+      default: // corgi and dashund
+        verticalImage.height = 133;
+    }
+
+    console.log(
+      `height: ${verticalImage.height}. width: ${verticalImage.width}`
+    );
+
+    preloadedVerticalImages[dog] = verticalImage;
+  });
+}
+
+// ***************** END IMAGE STUFF ****************
 
 const opponentBoard = document.querySelector("#opponent-gameboard");
 const userBoard = document.querySelector("#player-gameboard");
@@ -33,6 +67,9 @@ export function initializeDom() {
     dogImg.draggable = true;
     dogImg.addEventListener("dragstart", (e) => {
       e.dataTransfer.setData("dog-name", dogImg.dataset.dog);
+      const length = dogImg.dataset.length;
+      const segmentIndex = getDogSegment(e, dogImg, length);
+      e.dataTransfer.setData("segment-index", segmentIndex);
       dogImg.classList.add("almost-hidden");
     });
 
@@ -42,7 +79,7 @@ export function initializeDom() {
   });
 }
 
-// Puts game into initial state
+// Puts game logic and gameboard DOM into initial state
 function startNewGame() {
   let firstPlayerName = null;
   gameStarted = false;
@@ -78,7 +115,7 @@ function startNewGame() {
   });
 
   userPlayer.gameboard.resetBoard();
-  //userPlayer.gameboard.randomlyPlaceDogs();
+  userPlayer.gameboard.randomlyPlaceDogs();
   initializeBoard(userPlayer);
   displayGrid(userPlayer.gameboard);
 
@@ -100,6 +137,8 @@ function beginGame() {
   }
 }
 
+// only called on page load
+// sets up the actual DOM elements (i.e. NOT the game logic) of the gameboard
 function initializeBoard(playerObject) {
   const boardObject = playerObject.gameboard;
   const guessingPlayer =
@@ -166,10 +205,10 @@ function displayGrid(boardObject) {
 }
 
 // update the display of a single grid item
-// coordStatus = 1; display a MISS
-// coordStatus = 0; display EMPTY
-// coordStatus = object + treated; displayed a RED HIT
-// coordstatus = object + !treated; display DOG
+// coordStatus = 1; display a MISS (a red bone)
+// coordStatus = 0; display EMPTY (nothing)
+// coordStatus = object + treated; display a HIT (a red letter or a dog image)
+// coordstatus = object + !treated; show no information
 export function displayGridItem(coord, boardObject) {
   const coordDiv = boardObject.domGrid.querySelector(
     `#${numberToLetter(coord[1])}${coord[0] + 1}`
@@ -223,6 +262,8 @@ export function displayGridItem(coord, boardObject) {
   }
 }
 
+// actually displays a dog image on the board
+// for playerboard, this is from start; for opponent board, dog must be fully treated
 export function displayDog(dog, boardObject) {
   const { coords, name } = dog;
   const boardDom = boardObject.domBoard;
@@ -252,7 +293,10 @@ export function displayDog(dog, boardObject) {
   dogImage.dataset.orientation = isVertical ? "ver" : "hor";
   dogImage.addEventListener("dragstart", (e) => {
     e.dataTransfer.setData("dog-name", dogImage.dataset.dog);
+    const segmentIndex = getDogSegment(e, dogImage, dog.length);
+    e.dataTransfer.setData("segment-index", segmentIndex);
     dogImage.classList.add("almost-hidden");
+    cloneImageOnDogDragStart(e);
   });
 
   dogImage.addEventListener("dragend", () => {
@@ -273,6 +317,7 @@ export function displayDog(dog, boardObject) {
   dogImages.push(dogImage);
 }
 
+// during initial board setup, allows players to drag/drop dog onto a cell
 function dropDogOnCell(event, x, y, playerObject) {
   if (gameStarted) {
     return;
@@ -284,10 +329,15 @@ function dropDogOnCell(event, x, y, playerObject) {
   const dogName = event.dataTransfer.getData("dog-name");
   const dogObject = gameboard.getDogByName(dogName);
   const dogLength = dogObject.length;
-  const firstCoord = [x - 1, y];
-  const secondCoord = dogObject.isVertical()
-    ? [firstCoord[0], firstCoord[1] + dogLength - 1]
-    : [firstCoord[0] + dogLength - 1, firstCoord[1]];
+  //const firstCoord = [x - 1, y];
+  //const secondCoord = dogObject.isVertical() ? [firstCoord[0], firstCoord[1] + dogLength - 1] : [firstCoord[0] + dogLength - 1, firstCoord[1]];
+
+  // adjust coords based on where the user has 'grabbed' the dog
+  const segment = event.dataTransfer.getData("segment-index");
+  const shiftedCoords = calculateShiftedCoords(dogObject, [x - 1, y], segment);
+  const firstCoord = shiftedCoords[0];
+  const secondCoord = shiftedCoords[shiftedCoords.length - 1];
+  console.log(`Coords: ${firstCoord}, ${secondCoord}`);
 
   const dropSuccessful = gameboard.addDogByName(
     dogName,
@@ -316,6 +366,7 @@ function dropDogOnCell(event, x, y, playerObject) {
   }
 }
 
+// during initial board setup, called to rotate dog when user clicks on dog
 function rotateDogPlacement(event, gameboard) {
   const dogImage = event.currentTarget;
   const dogName = dogImage.getAttribute("data-dog");
@@ -325,8 +376,12 @@ function rotateDogPlacement(event, gameboard) {
   const nearestCellCoord = findNearestCellCoord(event, dogObject);
 
   // calculate the new coordinates for counter-clockwise rotation
-  const newCoordsCCW = calculateNewCoords(dogObject, nearestCellCoord, false);
-  const newCoordsCW = calculateNewCoords(dogObject, nearestCellCoord, true);
+  const newCoordsCCW = calculateRotatedCoords(
+    dogObject,
+    nearestCellCoord,
+    false
+  );
+  const newCoordsCW = calculateRotatedCoords(dogObject, nearestCellCoord, true);
 
   // try to add dog CCW first then CW (go go || short-circuit)
   if (
@@ -349,6 +404,38 @@ function rotateDogPlacement(event, gameboard) {
   }
 }
 
+// This creates a clone image when dragging vertical dogs
+// Necessary to preserve the rotation which is otherwise lost
+function cloneImageOnDogDragStart(event) {
+  const dogImage = event.target;
+  const isVertical = dogImage.dataset.orientation === "ver";
+  const dogName = dogImage.dataset.dog.toLowerCase();
+
+  if (isVertical && preloadedVerticalImages[dogName]) {
+    const dragImage = preloadedVerticalImages[dogName];
+
+    // create a temporary clone to style it explicitly
+    const tempImage = document.createElement("img");
+    tempImage.src = dragImage.src;
+    tempImage.style.width = `${dragImage.width}px`;
+    tempImage.style.height = `${dragImage.height}px`;
+    tempImage.style.position = "absolute"; // make sure it's off-screen
+    tempImage.style.top = "-9999px";
+    tempImage.style.left = "-9999px";
+
+    document.body.appendChild(tempImage);
+
+    // note that offsetY and offsetX are flipped
+    // that's because the original image is rotated
+    event.dataTransfer.setDragImage(tempImage, event.offsetY, event.offsetX);
+
+    // clean up the temporary element after a short delay
+    setTimeout(() => {
+      document.body.removeChild(tempImage);
+    }, 0);
+  }
+}
+
 // helper function for rotateDogPlacement
 function findNearestCellCoord(event, dogObject) {
   // note that we only need X - even when the image is rotated vertically
@@ -360,8 +447,42 @@ function findNearestCellCoord(event, dogObject) {
   return dogObject.coords[segmentIndex];
 }
 
+// helper function for dragging dog
+// returns the segment (0 for top/leftmost, dogLength# for bottom/rightmost)
+function getDogSegment(event, dogImage, dogLength) {
+  const isVertical = dogImage.dataset.orientation === "ver";
+  const rect = dogImage.getBoundingClientRect();
+
+  // note that I don't need to do offsetY even if dog is vertical
+  // that's because rotated images also rotate the coordinate system
+  const clickOffset = event.offsetX;
+
+  const segmentSize = isVertical
+    ? rect.height / dogLength
+    : rect.width / dogLength;
+
+  return Math.floor(clickOffset / segmentSize);
+}
+
+// helper function for shifting dog placement coords based on segment grabbed
+function calculateShiftedCoords(dogObject, dropCoord, segmentIndex) {
+  const isVertical = dogObject.isVertical();
+  const adjustedCoords = [];
+
+  for (let i = 0; i < dogObject.length; i++) {
+    const delta = i - segmentIndex;
+    const adjustedCoord = isVertical
+      ? [dropCoord[0], dropCoord[1] + delta]
+      : [dropCoord[0] + delta, dropCoord[1]];
+
+    adjustedCoords.push(adjustedCoord);
+  }
+
+  return adjustedCoords;
+}
+
 // helper function to calculate new coordinates based on rotation & pivot point
-function calculateNewCoords(dogObject, pivotCoord, clockwise = false) {
+function calculateRotatedCoords(dogObject, pivotCoord, clockwise = false) {
   const newCoords = [];
   const pivotIndex = dogObject.coords.findIndex(
     (coord) => coord[0] === pivotCoord[0] && coord[1] === pivotCoord[1]

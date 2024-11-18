@@ -1,4 +1,5 @@
-import { initializeDom } from "./domController";
+import { initializeDom, initialImageProcessing } from "./domController";
 import "./styles.css";
 
+initialImageProcessing();
 initializeDom();
