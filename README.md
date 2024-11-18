@@ -1,7 +1,5 @@
 ## To-do List:
 
-- bug relating to infinite loop when randomly placing dogs (place K first?)
-- AI bug w/ dog placement, not putting at 0 or 9 coords (rounding issue)
 - Kennel button for random placement
 - improve the dotmatrix some
 - allow cancelling of new game

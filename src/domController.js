@@ -35,10 +35,6 @@ export function initialImageProcessing() {
         verticalImage.height = 133;
     }
 
-    console.log(
-      `height: ${verticalImage.height}. width: ${verticalImage.width}`
-    );
-
     preloadedVerticalImages[dog] = verticalImage;
   });
 }
@@ -115,7 +111,7 @@ function startNewGame() {
   });
 
   userPlayer.gameboard.resetBoard();
-  userPlayer.gameboard.randomlyPlaceDogs();
+  //userPlayer.gameboard.randomlyPlaceDogs();
   initializeBoard(userPlayer);
   displayGrid(userPlayer.gameboard);
 

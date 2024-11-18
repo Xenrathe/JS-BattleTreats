@@ -222,15 +222,17 @@ export class Gameboard {
       while (!isPlaced) {
         // randomly choose between horizontal or vertical
         // VERTICAL
-        if (Math.round(Math.random()) == 0) {
-          const x = Math.round(Math.random() * 9);
-          const y = Math.round(Math.random() * (10 - dog.length));
+        if (Math.random() < 0.5) {
+          const x = Math.floor(Math.random() * 10);
+          const y = Math.floor(Math.random() * (10 - dog.length));
+          console.log(`randomCoords: ${x}, ${y}`);
           isPlaced = this.addDog(dog, [x, y], [x, y + dog.length - 1], true);
         }
         // HORIZONTAL
         else {
-          const x = Math.round(Math.random() * (10 - dog.length));
-          const y = Math.round(Math.random() * 9);
+          const x = Math.floor(Math.random() * (10 - dog.length));
+          const y = Math.floor(Math.random() * 10);
+          console.log(`randomCoords: ${x}, ${y}`);
           isPlaced = this.addDog(dog, [x, y], [x + dog.length - 1, y], true);
         }
       }
@@ -278,12 +280,15 @@ export class Gameboard {
       .fill()
       .map(() => Array(10).fill(0));
 
+    // this order is not arbitrary - you want to put the large dogs first
+    // that way when the AI does a forEach loop when placing dogs, the larger dogs are placed first
+    // this is less restrictive and will never result in an infinite loop
     this.#dogs = [
-      new Dog(2, "Pug", 0),
+      new Dog(5, "Komondor", 0),
+      new Dog(4, "Bulldog", 0),
       new Dog(3, "Dashund", 0),
       new Dog(3, "Corgi", 0),
-      new Dog(4, "Bulldog", 0),
-      new Dog(5, "Komondor", 0),
+      new Dog(2, "Pug", 0),
     ];
   }
 
@@ -298,7 +303,8 @@ export class Gameboard {
     let adjacencyFound = false;
 
     pointsToCheck.forEach((point) => {
-      if (typeof this.getCoord(point) == "object") {
+      const coord = this.getCoord(point);
+      if (typeof coord == "object" && coord != null) {
         adjacencyFound = true;
       }
     });
