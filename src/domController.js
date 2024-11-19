@@ -58,6 +58,9 @@ export function initializeDom() {
   dotMatrix.displayString("NEW GAME?");
   dotMatrixContainer.addEventListener("click", () => beginGame());
 
+  const kennelDogRandomBtn = document.querySelector("#random-btn");
+  kennelDogRandomBtn.disabled = true;
+
   const kennelDogs = document.querySelectorAll(".kennel-dog img");
   kennelDogs.forEach((dogImg) => {
     dogImg.draggable = true;
@@ -111,10 +114,19 @@ function startNewGame() {
     kennelImg.classList.remove("almost-hidden");
   });
 
+  // Enable random placement button
+  const kennelDogRandomBtn = document.querySelector("#random-btn");
+  kennelDogRandomBtn.disabled = false;
+  kennelDogRandomBtn.addEventListener("click", () => {
+    userPlayer.gameboard.randomlyPlaceDogs();
+    displayGrid(userPlayer.gameboard);
+    kennelDogs.forEach((kennelImg) => {
+      kennelImg.classList.add("hidden");
+    });
+  });
+
   userPlayer.gameboard.resetBoard();
-  //userPlayer.gameboard.randomlyPlaceDogs();
   initializeBoard(userPlayer);
-  displayGrid(userPlayer.gameboard);
 
   opponentPlayer.gameboard.resetBoard();
   opponentPlayer.gameboard.randomlyPlaceDogs();
@@ -232,10 +244,11 @@ export function displayGridItem(coord, boardObject) {
       textElement.classList.add("status-text");
       coordDiv.appendChild(textElement);
     }
-    textElement.textContent = coordStatus.dog.name[0];
 
     // DOG HAS BEEN TREATED (only way it's visible on opponent board)
     if (coordStatus.treated) {
+      textElement.textContent = coordStatus.dog.name[0];
+
       if (coordStatus.dog.isSatiated()) {
         textElement.classList.remove("red-text");
         textElement.classList.add("orange-text");
