@@ -106,7 +106,7 @@ export class Player {
             currentCoord[0] == 0 ? currentCoord[0] + 1 : currentCoord[0] - 1;
           let y = currentCoord[1];
           while (
-            boardToTreat.getCoord[(x, y)] === null ||
+            boardToTreat.getCoord([x, y]) === null ||
             boardToTreat.receiveTreat([x, y]) === false
           ) {
             console.log(`Guess is [${x}, ${y}]`);
