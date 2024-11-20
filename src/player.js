@@ -90,18 +90,26 @@ export class Player {
           boardToTreat
         );
 
-        // start one above or left, then go down or right until making a valid  guess
+        // start one above or left (unless it's outside of board), then go down or right until making a valid guess
         if (dogIsVertical) {
           let x = currentCoord[0];
           let y = currentCoord[1] - 1;
-          while (boardToTreat.receiveTreat([x, y]) === false) {
+          while (
+            boardToTreat.getCoord([x, y]) === null ||
+            boardToTreat.receiveTreat([x, y]) === false
+          ) {
+            console.log(`Guess is [${x}, ${y}]`);
             y = y + 1;
           }
         } else {
           let x =
             currentCoord[0] == 0 ? currentCoord[0] + 1 : currentCoord[0] - 1;
           let y = currentCoord[1];
-          while (boardToTreat.receiveTreat([x, y]) === false) {
+          while (
+            boardToTreat.getCoord[(x, y)] === null ||
+            boardToTreat.receiveTreat([x, y]) === false
+          ) {
+            console.log(`Guess is [${x}, ${y}]`);
             x = x + 1;
           }
         }

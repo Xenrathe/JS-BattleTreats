@@ -83,8 +83,9 @@ function startNewGame() {
   let firstPlayerName = null;
   gameStarted = false;
 
-  while (firstPlayerName == null) {
-    firstPlayerName = prompt("Please enter your name", "Legend");
+  firstPlayerName = prompt("Please enter your name", "Legend");
+  if (firstPlayerName == null) {
+    return;
   }
 
   userPlayer = new Player(
@@ -108,6 +109,8 @@ function startNewGame() {
   dogImages = [];
 
   // Reset kennel visibility
+  const kennel = document.querySelector(".kennels");
+  kennel.classList.remove("hidden");
   const kennelDogs = document.querySelectorAll(".kennel-dog img");
   kennelDogs.forEach((kennelImg) => {
     kennelImg.classList.remove("hidden");
@@ -118,11 +121,14 @@ function startNewGame() {
   const kennelDogRandomBtn = document.querySelector("#random-btn");
   kennelDogRandomBtn.disabled = false;
   kennelDogRandomBtn.addEventListener("click", () => {
-    userPlayer.gameboard.randomlyPlaceDogs();
-    displayGrid(userPlayer.gameboard);
-    kennelDogs.forEach((kennelImg) => {
-      kennelImg.classList.add("hidden");
-    });
+    if (!gameStarted) {
+      userPlayer.gameboard.randomlyPlaceDogs();
+      dotMatrix.displayString("CLICK TO START");
+      displayGrid(userPlayer.gameboard);
+      kennelDogs.forEach((kennelImg) => {
+        kennelImg.classList.add("hidden");
+      });
+    }
   });
 
   userPlayer.gameboard.resetBoard();
@@ -137,9 +143,11 @@ function startNewGame() {
 
 // Actually starts the gameplay
 function beginGame() {
-  if (gameStarted == false) {
+  if (gameStarted == false && userPlayer != null) {
     // make sure all player dogs are placed
     if (userPlayer.gameboard.areAllDogsPlaced()) {
+      const kennel = document.querySelector(".kennels");
+      kennel.classList.add("hidden");
       dotMatrix.displayString("GAME BEGIN!");
       gameStarted = true;
     }
