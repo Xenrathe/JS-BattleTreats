@@ -1,7 +1,5 @@
 ## To-do List:
 
-- improve the dotmatrix some
-- instructions for placing dogs - overlap neighbor's yard?
 - better new game button, better banner / logo
 - responsive / mobile design
 

@@ -98,7 +98,6 @@ export class Player {
             boardToTreat.getCoord([x, y]) === null ||
             boardToTreat.receiveTreat([x, y]) === false
           ) {
-            console.log(`Guess is [${x}, ${y}]`);
             y = y + 1;
           }
         } else {

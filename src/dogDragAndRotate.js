@@ -31,10 +31,6 @@ export function dropDogOnCell(event, x, y, playerObject) {
     if (kennelDogImage) {
       kennelDogImage.parentElement.classList.add("hidden");
     }
-
-    if (gameboard.areAllDogsPlaced()) {
-      dotMatrix.displayString("CLICK TO START");
-    }
   } else {
     kennelDogImage.classList.remove("almost-hidden");
     console.error("Dog placement failed.");

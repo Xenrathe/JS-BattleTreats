@@ -49,6 +49,7 @@ export function initialImageProcessing() {
 
 const opponentBoard = document.querySelector("#opponent-gameboard");
 const userBoard = document.querySelector("#player-gameboard");
+const omniBtn = document.querySelector("#omniBtn");
 let gameStarted = false;
 let userPlayer = null;
 let opponentPlayer = null;
@@ -56,13 +57,11 @@ let dotMatrix = null;
 let dogImages = [];
 
 export function initializeDom() {
-  const newGameBtn = document.querySelector("#new-game-btn");
-  newGameBtn.addEventListener("click", () => startNewGame());
+  omniBtn.addEventListener("click", () => omniButton());
 
   const dotMatrixContainer = document.querySelector("#dot-matrix-container");
   dotMatrix = new DotMatrix(dotMatrixContainer, 15);
   dotMatrix.displayString("NEW GAME?");
-  dotMatrixContainer.addEventListener("click", () => beginGame());
 
   const kennelDogRandomBtn = document.querySelector("#random-btn");
   kennelDogRandomBtn.disabled = true;
@@ -84,8 +83,16 @@ export function initializeDom() {
   });
 }
 
+// contains both startNewGame and beginGame functionality, depending on state of game
+function omniButton() {
+  if (gameStarted === false && userPlayer != null) {
+    beginGame();
+  } else {
+    newGame();
+  }
+}
 // Puts game logic and gameboard DOM into initial state
-function startNewGame() {
+function newGame() {
   let firstPlayerName = null;
   gameStarted = false;
 
@@ -129,10 +136,11 @@ function startNewGame() {
   kennelDogRandomBtn.addEventListener("click", () => {
     if (!gameStarted) {
       userPlayer.gameboard.randomlyPlaceDogs();
-      dotMatrix.displayString("CLICK TO START");
+      dotMatrix.displayString("CLICK START");
+      omniBtn.textContent = "START";
       displayGrid(userPlayer.gameboard);
       kennelDogs.forEach((kennelImg) => {
-        kennelImg.classList.add("hidden");
+        kennelImg.parentElement.classList.add("hidden");
       });
     }
   });
@@ -149,14 +157,13 @@ function startNewGame() {
 
 // Actually starts the gameplay
 function beginGame() {
-  if (gameStarted == false && userPlayer != null) {
-    // make sure all player dogs are placed
-    if (userPlayer.gameboard.areAllDogsPlaced()) {
-      const kennel = document.querySelector(".kennels");
-      kennel.classList.add("hidden");
-      dotMatrix.displayString("GAME BEGIN!");
-      gameStarted = true;
-    }
+  // make sure all player dogs are placed
+  if (userPlayer.gameboard.areAllDogsPlaced()) {
+    const kennel = document.querySelector(".kennels");
+    kennel.classList.add("hidden");
+    dotMatrix.displayString("GAME BEGIN!");
+    omniBtn.textContent = "NEW GAME";
+    gameStarted = true;
   }
 }
 
@@ -214,6 +221,10 @@ function initializeBoard(playerObject) {
             );
             if (dropResult.wasSuccessful) {
               displayDog(dropResult.dogObject, boardObject);
+              if (boardObject.areAllDogsPlaced()) {
+                dotMatrix.displayString("CLICK START");
+                omniBtn.textContent = "START";
+              }
             }
           }
         });
