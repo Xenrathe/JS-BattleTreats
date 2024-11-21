@@ -112,6 +112,7 @@ body {
 
 .hidden {
   display: none !important;
+  border: none !important;
 }
 
 .almost-hidden {
