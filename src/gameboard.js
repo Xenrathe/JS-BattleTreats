@@ -225,14 +225,12 @@ export class Gameboard {
         if (Math.random() < 0.5) {
           const x = Math.floor(Math.random() * 10);
           const y = Math.floor(Math.random() * (10 - dog.length));
-          console.log(`randomCoords: ${x}, ${y}`);
           isPlaced = this.addDog(dog, [x, y], [x, y + dog.length - 1], true);
         }
         // HORIZONTAL
         else {
           const x = Math.floor(Math.random() * (10 - dog.length));
           const y = Math.floor(Math.random() * 10);
-          console.log(`randomCoords: ${x}, ${y}`);
           isPlaced = this.addDog(dog, [x, y], [x + dog.length - 1, y], true);
         }
       }

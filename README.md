@@ -1,6 +1,5 @@
 ## To-do List:
 
-- Move drag/drop into its own js file
 - improve the dotmatrix some
 - instructions for placing dogs - overlap neighbor's yard?
 - better new game button, better banner / logo

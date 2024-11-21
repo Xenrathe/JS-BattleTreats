@@ -18,11 +18,20 @@ export class DotMatrix {
       return;
     }
 
-    for (let index = 0; index < stringToDisplay.length; index++) {
-      this.#displayCharacter(
-        this.#digitElements[index],
-        stringToDisplay[index]
-      );
+    // insert blank spaces to center message
+    let adjustedString = stringToDisplay;
+    if (stringToDisplay.length < this.length) {
+      for (
+        let i = 0;
+        i < Math.floor((this.length - stringToDisplay.length) / 2);
+        i++
+      ) {
+        adjustedString = " " + adjustedString;
+      }
+    }
+
+    for (let index = 0; index < adjustedString.length; index++) {
+      this.#displayCharacter(this.#digitElements[index], adjustedString[index]);
     }
   }
 
