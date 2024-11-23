@@ -49,7 +49,7 @@ export function initialImageProcessing() {
 
 const opponentBoard = document.querySelector("#opponent-gameboard");
 const userBoard = document.querySelector("#player-gameboard");
-const omniBtn = document.querySelector("#omniBtn");
+const omniBtn = document.querySelector("#omni-btn");
 let gameStarted = false;
 let userPlayer = null;
 let opponentPlayer = null;
