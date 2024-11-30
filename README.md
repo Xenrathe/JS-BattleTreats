@@ -1,7 +1,5 @@
 ## To-do List:
 
-- bug with cancelling name entry after clicking new game
-- better new game button
 - responsive / mobile design
 
 ## Attribution

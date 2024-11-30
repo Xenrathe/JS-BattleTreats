@@ -128,6 +128,7 @@ export class Player {
     ]);
     if (
       typeof gridDataRight == "object" &&
+      gridDataRight !== null &&
       gridDataRight.treated &&
       gridDataRight.dog.name == uncoveredGridDog.dog.name
     ) {

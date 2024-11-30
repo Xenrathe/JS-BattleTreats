@@ -2,8 +2,13 @@
   --cell-size: 40px;
 }
 
+@font-face {
+  font-family: ITCMachine;
+  src: url("./fonts/ITCMachine.ttf");
+}
+
 body {
-  font-family: "Arial", sans-serif;
+  font-family: ITCMachine, "Arial", sans-serif;
   background-color: #2e2e2e;
   color: #fff;
   margin: 0;
@@ -48,8 +53,10 @@ body {
 }
 
 .banner .title .text {
-  margin-top: 10px;
+  margin-top: 13px;
   color: rgb(0, 255, 13);
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: black;
 }
 
 .banner #daschund-right {
@@ -61,7 +68,51 @@ body {
 }
 
 .banner #omni-btn {
-  width: 100px;
+  width: 150px;
+}
+
+#omni-btn {
+  color: #00ff00;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: rgba(0, 255, 21, 0.452);
+  background-color: rgba(0, 0, 0, 0.822);
+  transition: all 0.3s;
+  position: relative;
+  font-size: 16px;
+  padding: 2px 0px;
+  cursor: pointer;
+  border-left: solid 2px rgba(0, 255, 0, 0.5);
+  border-right: solid 2px rgba(0, 255, 0, 0.5);
+  border-top: none;
+  border-bottom: none;
+}
+#omni-btn span {
+  transition: all 0.3s;
+}
+#omni-btn::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 4px);
+  z-index: 1;
+  opacity: 0;
+  transition: all 0.3s;
+  border-top-width: 2px;
+  border-bottom-width: 2px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: rgba(0, 255, 0, 0.5);
+  border-bottom-color: rgba(0, 255, 0, 0.5);
+  transform: scale(0.1, 1);
+}
+#omni-btn:hover span {
+  letter-spacing: 2px;
+}
+#omni-btn:hover::before {
+  opacity: 1;
+  transform: scale(1, 1);
 }
 
 #game-container {
@@ -85,6 +136,8 @@ body {
 .game-board-title {
   font-size: 1.5rem;
   margin-bottom: 10px;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: rgb(0, 255, 13, 0.4);
 }
 
 .logo {
@@ -110,6 +163,7 @@ body {
   align-items: center;
   position: relative;
 
+  font-family: "Arial", sans-serif;
   color: black;
   font-size: 20px;
 }
@@ -124,10 +178,17 @@ body {
   font-weight: bold;
 }
 
-.axis-labels {
+.axis-labels,
+.horizontal-labels {
   display: flex;
-  flex-direction: column;
   justify-content: space-around;
+  font-size: 20px;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: rgb(0, 255, 13, 0.4);
+}
+
+.axis-labels {
+  flex-direction: column;
   height: calc(var(--cell-size) * 10 + 45px);
   width: 13px;
   margin-right: 2px;
@@ -140,8 +201,6 @@ body {
 }
 
 .horizontal-labels {
-  display: flex;
-  justify-content: space-around;
   width: calc(var(--cell-size) * 10 + 45px);
   padding-left: 13px;
   margin-top: 2px;
@@ -214,6 +273,11 @@ body {
   align-items: center;
   gap: 10px;
   width: 460px;
+}
+
+.kennels .title {
+  font-size: 20px;
+  letter-spacing: 2px;
 }
 
 .kennels .title button {

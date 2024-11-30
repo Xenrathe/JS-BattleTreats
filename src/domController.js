@@ -94,12 +94,13 @@ function omniButton() {
 // Puts game logic and gameboard DOM into initial state
 function newGame() {
   let firstPlayerName = null;
-  gameStarted = false;
 
   firstPlayerName = prompt("Please enter your name", "Legend");
   if (firstPlayerName == null) {
     return;
   }
+
+  gameStarted = false;
 
   userPlayer = new Player(
     firstPlayerName,
@@ -137,7 +138,7 @@ function newGame() {
     if (!gameStarted) {
       userPlayer.gameboard.randomlyPlaceDogs();
       dotMatrix.displayString("CLICK START");
-      omniBtn.textContent = "START";
+      omniBtn.innerHTML = "<span>START</span>";
       displayGrid(userPlayer.gameboard);
       kennelDogs.forEach((kennelImg) => {
         kennelImg.parentElement.classList.add("hidden");
@@ -162,7 +163,7 @@ function beginGame() {
     const kennel = document.querySelector(".kennels");
     kennel.classList.add("hidden");
     dotMatrix.displayString("GAME BEGIN!");
-    omniBtn.textContent = "NEW GAME";
+    omniBtn.innerHTML = "<span>NEW GAME</span>";
     gameStarted = true;
   }
 }
