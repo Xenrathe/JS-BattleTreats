@@ -101,6 +101,7 @@ function newGame() {
   }
 
   gameStarted = false;
+  userBoard.classList.remove("game-started");
 
   userPlayer = new Player(
     firstPlayerName,
@@ -164,6 +165,7 @@ function beginGame() {
     kennel.classList.add("hidden");
     dotMatrix.displayString("GAME BEGIN!");
     omniBtn.innerHTML = "<span>NEW GAME</span>";
+    userBoard.classList.add("game-started");
     gameStarted = true;
   }
 }

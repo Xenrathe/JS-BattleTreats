@@ -1,6 +1,7 @@
 ## To-do List:
 
-- responsive / mobile design
+- mobile design: button for toggling between yards?
+- diff functionality for dragging kennel dogs
 
 ## Attribution
 
