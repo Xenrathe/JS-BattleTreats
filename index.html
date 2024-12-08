@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BattleTreats</title>
+  <script defer src="main.js"></script></head>
+  <body>
+    <!-- Banner -->
+    <div class="banner">
+      <div class="title">
+        <img
+          src="9d64cab4c680ee140bb7.png"
+          id="daschund-left"
+          class="logo-img"
+        />
+        <div class="text">BATTLETREATS</div>
+        <img
+          src="9d64cab4c680ee140bb7.png"
+          id="daschund-right"
+          class="logo-img"
+        />
+      </div>
+      <button id="omni-btn"><span>NEW GAME</span></button>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container">
+      <div id="dot-matrix-container"></div>
+      <div id="game-boards">
+        <!-- My Dogs Board -->
+        <div class="game-board" id="player-gameboard">
+          <div class="game-board-title">My Yard</div>
+          <!-- Axis Labels for Vertical Axis -->
+          <div style="display: flex">
+            <div class="axis-labels">
+              <span>A</span>
+              <span>B</span>
+              <span>C</span>
+              <span>D</span>
+              <span>E</span>
+              <span>F</span>
+              <span>G</span>
+              <span>H</span>
+              <span>I</span>
+              <span>J</span>
+            </div>
+
+            <!-- Gameboard Grid -->
+            <div class="board-grid" id="player-grid"></div>
+          </div>
+          <!-- Horizontal Axis Labels -->
+          <div class="horizontal-labels">
+            <span>1</span> <span>2</span> <span>3</span> <span>4</span>
+            <span>5</span> <span>6</span> <span>7</span> <span>8</span>
+            <span>9</span> <span>10</span>
+          </div>
+          <div class="kennels">
+            <div class="title">
+              Kennels -
+              <button id="random-btn">Random</button>
+            </div>
+            <div class="kennel-dogs">
+              <div class="kennel-dog">
+                <img
+                  src="74c6465d3dbdb4d25897.png"
+                  class="dog-image L2"
+                  data-length="2"
+                  data-dog="Pug"
+                  data-orientation="hor"
+                />
+              </div>
+              <div class="kennel-dog">
+                <img
+                  src="f92d4229e59ad2d8fc00.png"
+                  class="dog-image L3"
+                  data-length="3"
+                  data-dog="Corgi"
+                  data-orientation="hor"
+                />
+              </div>
+              <div class="kennel-dog">
+                <img
+                  src="18cc92a4473ba7ac5a94.png"
+                  class="dog-image L3"
+                  data-length="3"
+                  data-dog="Dashund"
+                  data-orientation="hor"
+                />
+              </div>
+              <div class="kennel-dog">
+                <img
+                  src="f6c14eb68c8f90b54518.png"
+                  class="dog-image L4"
+                  data-length="4"
+                  data-dog="Bulldog"
+                  data-orientation="hor"
+                />
+              </div>
+              <div class="kennel-dog">
+                <img
+                  src="f2c972ce620de60a9eea.png"
+                  class="dog-image L5"
+                  data-length="5"
+                  data-dog="Komondor"
+                  data-orientation="hor"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Neighbor's Dogs Board -->
+        <div class="game-board" id="opponent-gameboard">
+          <div class="game-board-title">Neighbor's Yard</div>
+          <!-- Axis Labels for Vertical Axis -->
+          <div style="display: flex">
+            <div class="axis-labels">
+              <span>A</span>
+              <span>B</span>
+              <span>C</span>
+              <span>D</span>
+              <span>E</span>
+              <span>F</span>
+              <span>G</span>
+              <span>H</span>
+              <span>I</span>
+              <span>J</span>
+            </div>
+
+            <!-- Gameboard Grid -->
+            <div class="board-grid" id="opponent-grid"></div>
+          </div>
+          <!-- Horizontal Axis Labels -->
+          <div class="horizontal-labels">
+            <span>1</span> <span>2</span> <span>3</span> <span>4</span>
+            <span>5</span> <span>6</span> <span>7</span> <span>8</span>
+            <span>9</span> <span>10</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
