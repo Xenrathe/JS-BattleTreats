@@ -4,8 +4,6 @@
 
 ![Screenshot of dogs being placed](https://github.com/Xenrathe/JS-BattleTreats/blob/main/GH-DogPlacement.png?raw=true)
 
-### Primary:
-
 The BattleTreats app is a single-player game, in which players are tasked with feeding treats to their neighbor's dog before their neighbor (played by the computer) feeds all of their dogs! Whoever feeds their neighbor's dogs first makes all the dogs happy and therefore wins the game!
 
 BattleTreats is active on GitHub pages: (https://xenrathe.github.io/JS-BattleTreats/)
