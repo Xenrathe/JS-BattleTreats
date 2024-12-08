@@ -6,6 +6,7 @@ import {
   dropDogOnCell,
   rotateDogPlacement,
   cloneImageOnDogDragStart,
+  setDragData,
 } from "./dogDragAndRotate";
 
 // ************ IMAGE STUFF **********************
@@ -69,17 +70,127 @@ export function initializeDom() {
   const kennelDogs = document.querySelectorAll(".kennel-dog img");
   kennelDogs.forEach((dogImg) => {
     dogImg.draggable = true;
-    dogImg.addEventListener("dragstart", (e) => {
-      e.dataTransfer.setData("dog-name", dogImg.dataset.dog);
-      const length = dogImg.dataset.length;
-      const segmentIndex = getDogSegment(e, dogImg, length);
-      e.dataTransfer.setData("segment-index", segmentIndex);
-      dogImg.classList.add("almost-hidden");
-    });
+    addDragEventListenersToDogImg(dogImg, dogImg.dataset.length, true);
+  });
+}
 
-    dogImg.addEventListener("dragend", (e) => {
-      dogImg.classList.remove("almost-hidden");
-    });
+function addDragEventListenersToDogImg(dogImg, dogLength, isKennelDog) {
+  // DESKTOP: DRAG/DROP
+  dogImg.addEventListener("dragstart", (e) => {
+    const segmentIndex = getDogSegment(e, dogImg, dogLength);
+    setDragData(dogImg.dataset.dog, segmentIndex);
+    dogImg.classList.add("almost-hidden");
+    if (!isKennelDog) {
+      cloneImageOnDogDragStart(e);
+    }
+  });
+
+  dogImg.addEventListener("dragend", (e) => {
+    dogImg.classList.remove("almost-hidden");
+  });
+
+  // MOBILE: TOUCH START/MOVE
+  let touchStartX = 0;
+  let touchOffsetX = 0;
+  let touchStartY = 0;
+  let touchOffsetY = 0;
+  let touchIsATap = true;
+  let dragClone = null;
+
+  dogImg.addEventListener("touchstart", (e) => {
+    const touch = e.touches[0];
+    const rect = dogImg.getBoundingClientRect();
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    touchOffsetX = touch.clientX - rect.left;
+    touchOffsetY = touch.clientY - rect.top;
+
+    const segmentIndex = getDogSegment(e, dogImg, dogLength);
+    setDragData(dogImg.dataset.dog, segmentIndex);
+
+    dragClone = cloneImageOnDogDragStart(e);
+    if (dragClone) {
+      dogImg.classList.add("barely-visible");
+      dragClone.style.left = `${touch.clientX - touchOffsetX}px`;
+      dragClone.style.top = `${touch.clientY - touchOffsetY}px`;
+    }
+
+    e.preventDefault();
+  });
+
+  dogImg.addEventListener("touchmove", (e) => {
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartX;
+    const deltaY = touch.clientY - touchStartY;
+
+    if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+      touchIsATap = false;
+    }
+
+    dogImg.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+    if (dragClone) {
+      dragClone.style.left = `${touch.clientX - touchOffsetX}px`;
+      dragClone.style.top = `${touch.clientY - touchOffsetY}px`;
+    }
+
+    e.preventDefault();
+  });
+
+  dogImg.addEventListener("touchend", (e) => {
+    // Remove the drag clone
+    if (dragClone) {
+      dragClone.remove();
+      dragClone = null;
+      dogImg.classList.remove("barely-visible");
+    }
+    dogImg.classList.remove("almost-hidden");
+    dogImg.style.transform = "";
+
+    const touch = e.changedTouches[0];
+    const dropX = touch.clientX;
+    const dropY = touch.clientY;
+
+    if (touchIsATap && !isKennelDog) {
+      const rect = dogImg.getBoundingClientRect();
+      const offsetX = dropX - rect.left;
+      const offsetY = dropY - rect.top;
+
+      // why this complicated simulatedClick you ask?!
+      // why not just do a simple .click() call you ask?!
+      // because we later use coordinate info of the click to determine the 'segment' the dog was clicked
+      const simulatedClick = new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true,
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        offsetX: offsetX,
+        offsetY: offsetY,
+      });
+
+      dogImg.dispatchEvent(simulatedClick);
+      return;
+    }
+
+    dogImg.style.visibility = "hidden"; //gotta hide this to prevent elementFromPoint grabbing dog img
+    const targetCell = document.elementFromPoint(dropX, dropY);
+    dogImg.style.visibility = "visible";
+
+    if (
+      targetCell &&
+      targetCell.classList.contains("grid-cell") &&
+      targetCell.parentElement.id == "player-grid"
+    ) {
+      const col = targetCell.id.substring(1);
+      const row = targetCell.id.substring(0, 1);
+
+      const dropResult = dropDogOnCell(
+        e,
+        col,
+        Number(letterToNumber(row)),
+        userPlayer
+      );
+      handleDropResult(dropResult, userPlayer.gameboard);
+    }
   });
 }
 
@@ -222,13 +333,7 @@ function initializeBoard(playerObject) {
               letterToNumber(row),
               playerObject
             );
-            if (dropResult.wasSuccessful) {
-              displayDog(dropResult.dogObject, boardObject);
-              if (boardObject.areAllDogsPlaced()) {
-                dotMatrix.displayString("CLICK START");
-                omniBtn.textContent = "START";
-              }
-            }
+            handleDropResult(dropResult, boardObject);
           }
         });
       }
@@ -236,6 +341,17 @@ function initializeBoard(playerObject) {
       domGrid.appendChild(gridCell);
     });
   });
+}
+
+// used after drag/drop and touchstart/end
+function handleDropResult(dropResult, boardObject) {
+  if (dropResult.wasSuccessful) {
+    displayDog(dropResult.dogObject, boardObject);
+    if (boardObject.areAllDogsPlaced()) {
+      dotMatrix.displayString("CLICK START");
+      omniBtn.textContent = "START";
+    }
+  }
 }
 
 // only used if you want to reveal the WHOLE board
@@ -339,17 +455,7 @@ export function displayDog(dog, boardObject) {
   // drag/drop stuff
   dogImage.dataset.dog = name;
   dogImage.dataset.orientation = isVertical ? "ver" : "hor";
-  dogImage.addEventListener("dragstart", (e) => {
-    e.dataTransfer.setData("dog-name", dogImage.dataset.dog);
-    const segmentIndex = getDogSegment(e, dogImage, dog.length);
-    e.dataTransfer.setData("segment-index", segmentIndex);
-    dogImage.classList.add("almost-hidden");
-    cloneImageOnDogDragStart(e);
-  });
-
-  dogImage.addEventListener("dragend", () => {
-    dogImage.classList.remove("almost-hidden");
-  });
+  addDragEventListenersToDogImg(dogImage, dog.length, false);
 
   dogImage.addEventListener("click", (e) => {
     // disallow rotation if game has started

@@ -1,7 +1,7 @@
 ## To-do List:
 
-- mobile design: button for toggling between yards?
-- diff functionality for dragging kennel dogs
+- put touch event functions on already placed dogs
+- add a highlight visibility for 'dragover'
 
 ## Attribution
 

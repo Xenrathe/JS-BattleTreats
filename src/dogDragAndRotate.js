@@ -1,5 +1,12 @@
 import { preloadedVerticalImages } from "./domController";
 
+let dragDogName = "";
+let dragSegmentIndex = 0;
+
+export function setDragData(dogName, segmentIndex) {
+  dragDogName = dogName;
+  dragSegmentIndex = segmentIndex;
+}
 // during initial board setup, allows players to drag/drop dog onto a cell
 // placed as an eventListener on every grid-cell
 // returns an object {wasSuccessful: true/false, dogObject: dog being dragged}
@@ -7,24 +14,28 @@ export function dropDogOnCell(event, x, y, playerObject) {
   event.preventDefault();
 
   const gameboard = playerObject.gameboard;
-  const dogName = event.dataTransfer.getData("dog-name");
-  const dogObject = gameboard.getDogByName(dogName);
+  //const dogName = event.dataTransfer.getData("dog-name");
+  const dogObject = gameboard.getDogByName(dragDogName);
 
   // adjust coords based on where the user has 'grabbed' the dog
-  const segment = event.dataTransfer.getData("segment-index");
-  const shiftedCoords = calculateShiftedCoords(dogObject, [x - 1, y], segment);
+  //const segment = event.dataTransfer.getData("segment-index");
+  const shiftedCoords = calculateShiftedCoords(
+    dogObject,
+    [x - 1, y],
+    dragSegmentIndex
+  );
   const firstCoord = shiftedCoords[0];
   const secondCoord = shiftedCoords[shiftedCoords.length - 1];
 
   const dropSuccessful = gameboard.addDogByName(
-    dogName,
+    dragDogName,
     firstCoord,
     secondCoord,
     false
   );
 
   const kennelDogImage = document.querySelector(
-    `.kennel-dogs [data-dog="${dogName}"]`
+    `.kennel-dogs [data-dog="${dragDogName}"]`
   );
 
   if (dropSuccessful) {
@@ -80,15 +91,24 @@ export function rotateDogPlacement(event, gameboard) {
   return false;
 }
 
-// function for dragging dog, put on a dragStart eventListener
+// function for dragging dog, put on a dragStart or touchStart eventListener
 // returns the segment (0 for top/leftmost, dogLength# for bottom/rightmost)
 export function getDogSegment(event, dogImage, dogLength) {
   const isVertical = dogImage.dataset.orientation === "ver";
   const rect = dogImage.getBoundingClientRect();
 
-  // note that I don't need to do offsetY even if dog is vertical
-  // that's because rotated images also rotate the coordinate system
-  const clickOffset = event.offsetX;
+  let clickOffset;
+
+  if (event.type.startsWith("touch")) {
+    const touch = event.touches[0];
+    clickOffset = isVertical
+      ? touch.clientY - rect.top
+      : touch.clientX - rect.left;
+  } else if (event.type.startsWith("mouse") || event.type === "dragstart") {
+    clickOffset = event.offsetX;
+  } else {
+    throw new Error("Unsupported event type in getDogSegment");
+  }
 
   const segmentSize = isVertical
     ? rect.height / dogLength
@@ -101,18 +121,30 @@ export function getDogSegment(event, dogImage, dogLength) {
 // Necessary to preserve the rotation which is otherwise lost
 export function cloneImageOnDogDragStart(event) {
   const dogImage = event.target;
-  const isVertical = dogImage.dataset.orientation === "ver";
+  const dogImageRect = dogImage.getBoundingClientRect();
   const dogName = dogImage.dataset.dog.toLowerCase();
+  const dragImage = preloadedVerticalImages[dogName];
 
-  if (isVertical && preloadedVerticalImages[dogName]) {
-    const dragImage = preloadedVerticalImages[dogName];
+  // clone only necessary for vertical dogs
+  if (dogImage.dataset.orientation !== "ver" || !dragImage) {
+    return null;
+  }
 
-    // create a temporary clone to style it explicitly
-    const tempImage = document.createElement("img");
-    tempImage.src = dragImage.src;
-    tempImage.style.width = `${dragImage.width}px`;
-    tempImage.style.height = `${dragImage.height}px`;
-    tempImage.style.position = "absolute"; // make sure it's off-screen
+  // create a temporary clone to style it explicitly
+  const tempImage = document.createElement("img");
+  tempImage.src = dragImage.src;
+  tempImage.style.width = `${dogImageRect.width}px`;
+  tempImage.style.height = `${dogImageRect.height}px`;
+  tempImage.style.position = "absolute";
+  tempImage.style.opacity = 0.5;
+
+  if (event.type.startsWith("touch")) {
+    tempImage.style.pointerEvents = "none";
+    tempImage.id = "dragging-clone";
+
+    document.body.appendChild(tempImage);
+  } else {
+    // make sure it's off-screen
     tempImage.style.top = "-9999px";
     tempImage.style.left = "-9999px";
 
@@ -127,6 +159,8 @@ export function cloneImageOnDogDragStart(event) {
       document.body.removeChild(tempImage);
     }, 0);
   }
+
+  return tempImage;
 }
 
 // helper function for rotateDogPlacement

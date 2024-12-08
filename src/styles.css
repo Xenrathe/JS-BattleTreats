@@ -239,6 +239,10 @@ body {
   opacity: 0.5;
 }
 
+.barely-visible {
+  opacity: 0.01 !important;
+}
+
 .status-text {
   z-index: 11;
 }
